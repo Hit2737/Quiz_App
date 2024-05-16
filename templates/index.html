@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Login Authentication</title>
+</head>
+<body style="display: flex; flex-direction: column; align-items: center;">
+    <h1>
+        Welcome to the login authentication page
+    </h1>
+    <h2>You have to Login/Register first</h2>
+    <div>
+        <a href="{{url_for('login')}}" type="button" class="btn btn-outline-success">Login</a>
+        <a href="{{url_for('register')}}" type="button" class="btn btn-outline-success">Register</a>
+    </div>
+</body>
+</html>

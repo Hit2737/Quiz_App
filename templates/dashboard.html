@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA_Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Dashboard</title>
+</head>
+<body style="display: flex; flex-direction: column; align-items: center;">
+    <h1>Welcome!</h1>
+    <h2>Username: {{current_user.username}}</h2>
+    <h2>Email: {{current_user.email}}</h2>
+    <h4>Want to logout?</h4>
+    <a href="{{url_for('logout')}}" type="button" class="btn btn-outline-danger" style="bottom: 20px;">Logout</a>
+    
+</body>
+</html>

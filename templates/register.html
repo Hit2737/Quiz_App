@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Register Page</title>
+</head>
+<body style="display: flex; flex-direction: column; align-items: center;">
+    <h1>Register with your IITGN Email</h1>
+    <form action="" method="POST" style="display: flex;flex-direction: column;">
+        {{form.hidden_tag()}}
+        {{form.username}}
+        {{form.email}}
+        {{form.password}}
+        {{form.submit}}
+    </form>
+    <h4>Already Registered? Login</h4>
+    <a href="{{url_for('login')}}" type="button" class="btn btn-outline-success">Login</a>
+</body>
+</html>
