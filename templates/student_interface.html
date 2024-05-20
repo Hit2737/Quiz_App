@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Awesome Quiz Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .quiz-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative; /* Needed for positioning the button inside the container */
+        }
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .question {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        .options {
+            list-style-type: none;
+            padding: 0;
+        }
+        .options li {
+            margin-bottom: 10px;
+        }
+        .options button {
+            width: 100%;
+            padding: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            transition: background-color 0.3s;
+        }
+        .options button:hover {
+            background-color: #e0e0e0;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .next-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        .next-button:hover {
+            background-color: #45a049;
+        }
+        .username {
+            font-size: 1em;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-container">
+    <div class="quiz-header">
+        <div class="username">Username: <span id="username">JohnDoe</span></div>
+    </div>
+    <div class="question">
+        1. What is the capital of France?
+    </div>
+    <ul class="options">
+        <li><button>Paris</button></li>
+        <li><button>Berlin</button></li>
+        <li><button>Tokyo</button></li>
+        <li><button>Delhi</button></li>
+    </ul>
+    <div class="footer">
+        1 of x Questions
+    </div>
+    <div style="margin-top: 40px;"></div>
+    <button class="next-button">Next Question</button>
+</div>
+
+</body>
+</html>
