@@ -76,6 +76,9 @@
 <body>
 
 <div class="quiz-container">
+    <div class="quiz_code-container">
+        Quiz Code: <span id="quiz_code">{{quiz.quiz_id}}</span>
+    </div>
     <div class="quiz-header">
         <div class="username">Username: <span id="username">JohnDoe</span></div>
     </div>
@@ -83,16 +86,20 @@
         {{ques.question_text}}
     </div>
     <ul class="options">
-        <li><button>Paris</button></li>
-        <li><button>Berlin</button></li>
-        <li><button>Tokyo</button></li>
-        <li><button>Delhi</button></li>
+        {% for option in options %}
+        <li>
+            <button>{{option.option_text}}</button>
+        </li>
+        {% endfor %}
     </ul>
     <div class="footer">
-        1 of x Questions
+        <!-- getting total no. of questions from quiz code -->
+        {{ques['question_id']}} of {{ques_count}} Questions
     </div>
     <div style="margin-top: 40px;"></div>
-    <button class="next-button">Next Question</button>
+    <form method="post">
+        <input type="submit" class="next-button" id="next" value="Next Question">
+    </form>
 </div>
 
 </body>

@@ -32,12 +32,14 @@ CREATE TABLE IF NOT EXISTS Questions (
 INSERT INTO Quizzes (quiz_name) VALUES ('Sample Quiz');
 
 -- Insert into questions with options in JSON format
+-- INSERT INTO Questions (quiz_id, question_text, options) VALUES 
+-- (1, 'What is the capital of France?', '[{"option_text": "Paris", "is_correct": true}, {"option_text": "London", "is_correct": false}, {"option_text": "Berlin", "is_correct": false}, {"option_text": "Delhi", "is_correct": false}]');
+-- INSERT INTO Questions (quiz_id, question_text, options) VALUES 
+-- (1, 'What is the capital of India?', '[{"option_text": "Paris", "is_correct": false}, {"option_text": "London", "is_correct": false}, {"option_text": "Berlin", "is_correct": false}, {"option_text": "Delhi", "is_correct": true}]');
 INSERT INTO Questions (quiz_id, question_text, options) VALUES 
-(1, 'What is the capital of France?', '[{"option_text": "Paris", "is_correct": true}, {"option_text": "London", "is_correct": false}, {"option_text": "Berlin", "is_correct": false}, {"option_text": "Delhi", "is_correct": false}]');
-INSERT INTO Questions (quiz_id, question_text, options) VALUES 
-(1, 'What is the capital of India?', '[{"option_text": "Paris", "is_correct": false}, {"option_text": "London", "is_correct": false}, {"option_text": "Berlin", "is_correct": false}, {"option_text": "Delhi", "is_correct": true}]');
-INSERT INTO Questions (quiz_id, question_text, options) VALUES 
-(1, 'What is the capital of France?', '[{"option_text": "Paris", "is_correct": true}, {"option_text": "London", "is_correct": false}, {"option_text": "Berlin", "is_correct": false}, {"option_text": "Delhi", "is_correct": false}]');
+(2, 'What is the capital of India?', '[{"option_text": "Paris", "is_correct": false}, {"option_text": "London", "is_correct": false}, {"option_text": "Berlin", "is_correct": false}, {"option_text": "Delhi", "is_correct": true}]');
+-- INSERT INTO Questions (quiz_id, question_text, options) VALUES 
+-- (1, 'What is the capital of France?', '[{"option_text": "Paris", "is_correct": true}, {"option_text": "London", "is_correct": false}, {"option_text": "Berlin", "is_correct": false}, {"option_text": "Delhi", "is_correct": false}]');
 
 -- -- Querying the data (although this will be used in the main code)
 -- SELECT 
