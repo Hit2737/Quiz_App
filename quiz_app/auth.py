@@ -103,17 +103,11 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        quiz_code = request.form['quiz_code']
         db = get_db()
         error = None
         user = db.execute(
             'SELECT * FROM user WHERE username = ?', (username,)
         ).fetchone()
-        quiz = db.execute(
-            'SELECT * FROM Quizzes WHERE quiz_id = ?', (quiz_code,)
-        ).fetchone()
-        if quiz is None:
-            error = 'Invalid Quiz Code.'
         if user is None:
             error = 'Incorrect username.'
         elif not check_password_hash(user['password'], password):
@@ -122,10 +116,9 @@ def login():
         if error is None:
             session.clear()
             session['user_id'] = user['id']
-            session['quiz_id'] = quiz['quiz_id']
             session['current_question'] = 1
             print(session)
-            return redirect(url_for('auth.student_interface'));
+            return redirect(url_for('auth.dashboard'));
 
         flash(error)
 
