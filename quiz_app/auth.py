@@ -127,9 +127,63 @@ def dashboard():
     Quizzes = get_db().execute(
         'SELECT * FROM Quizzes'
     ).fetchall()
+    print("hello\n\n")
+    print(Quizzes)
     if(request.method == 'POST'):
         session['current_question'] = 1
         session['quiz_id'] = request.form['quiz_code']
         print(session)
         return redirect(url_for('auth.student_interface'))
     return render_template('dashboard.html', Quizzes=Quizzes)
+
+@bp.route('/submit_response/<quiz_id>/<question_id>', methods=['POST'])
+@login_required
+def submit_response(quiz_id, question_id):
+    db = get_db()
+    user_id = g.user['id']
+    selected_options = request.form.getlist('selected_option')
+    print("Form Data:", request.form)  # Print the entire form data for debugging
+    print("Selected Options:", selected_options)  # Print selected options
+    if not selected_options:
+        flash('You must select at least one option.')
+        session['current_question'] = question_id
+        session['quiz_id'] = quiz_id
+        return redirect(url_for('auth.student_interface'))
+    selected_options_indices = [int(option) for option in selected_options] 
+    selected_options_json = json.dumps(selected_options_indices)  # Convert the list to a JSON string
+    print(selected_options_json)
+    db.execute(
+        'INSERT INTO UserResponses (user_id, quiz_id, question_id, selected_options)'
+        ' VALUES (?, ?, ?, ?)',
+        (user_id, quiz_id, question_id, selected_options_json)
+    )
+    db.commit()
+
+    next_question_id = int(question_id) + 1
+    # Check if there are more questions
+    next_question = db.execute(
+        'SELECT * FROM Questions WHERE quiz_id = ? AND question_id = ?',
+        (quiz_id, next_question_id)
+    ).fetchone()
+
+    if next_question is None:
+        return redirect(url_for('auth.thankyou'))
+    else:
+        session['current_question'] = next_question_id
+        session['quiz_id'] = quiz_id
+        return redirect(url_for('auth.student_interface'))
+
+# @bp.route('/take-quiz/<quiz_id>/<int:question_id>', methods=['GET'])
+# @login_required
+# def take_quiz(quiz_id, question_id):
+#     db = get_db()
+#     question = db.execute(
+#         'SELECT * FROM Questions WHERE quiz_id = ? AND id = ?',
+#         (quiz_id, question_id)
+#     ).fetchone()
+
+#     if question is None:
+#         abort(404)
+
+#     options = json.loads(question['options'])  # Convert JSON string back to list
+#     return render_template('quiz.html', question=question, options=options, quiz_id=quiz_id)

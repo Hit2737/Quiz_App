@@ -19,6 +19,11 @@
                 <label for="options">Options</label>
                 <div class="input-group mb-2">
                     <input type="text" class="form-control" name="options" placeholder="Enter option" required>
+                    <div class="input-group-append">
+                        <div class="input-group-text">
+                            <input type="checkbox" name="correct_options" aria-label="Checkbox for following text input">
+                        </div>
+                    </div>
                 </div>
             </div>
             <button type="button" class="btn btn-secondary mb-3" id="add-option">Add Option</button>
@@ -38,6 +43,11 @@
                 $('#options-container').append(
                     '<div class="input-group mb-2">' +
                     '<input type="text" class="form-control" name="options" placeholder="Enter option" required>' +
+                    '<div class="input-group-append">' +
+                    '<div class="input-group-text">' +
+                    '<input type="checkbox" name="correct_options" aria-label="Checkbox for following text input">' +
+                    '</div>' +
+                    '</div>' +
                     '</div>'
                 );
             });

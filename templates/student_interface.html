@@ -97,11 +97,11 @@
         {{ques['question_id']}} of {{ques_count}} Questions
     </div>
     <div style="margin-top: 40px;"></div>
-    <form method="post">
+    <form method="post" action="{{ url_for('auth.submit_response',quiz_id=quiz.quiz_id, question_id=ques["question_id"])}}">
         <ul class="options">
             {% for option in options %}
             <li>
-                <input type="checkbox" id="option{{ loop.index }}" name="selected_option" value="{{option}}">
+                <input type="checkbox" id="option{{ loop.index }}" name="selected_option" value="{{loop.index}}">
                 <label for="option{{ loop.index }}">{{option}}</label>
             </li>
             {% endfor %}

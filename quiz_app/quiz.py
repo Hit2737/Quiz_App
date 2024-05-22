@@ -47,6 +47,7 @@ def add_questions(quiz_id):
     if request.method == 'POST':
         question = request.form['question']
         options = request.form.getlist('options')
+        correct_options = request.form.getlist('correct_options')
         error = None
 
         if not question:
@@ -57,17 +58,23 @@ def add_questions(quiz_id):
         if error is not None:
             flash(error)
         else:
+            result= db.execute('SELECT MAX(question_id) FROM Questions WHERE quiz_id = ?', (quiz_id,)).fetchone()
+            next_question_id= (result[0] or 0) + 1
             options_json = json.dumps(options)  # Convert the options list to a JSON string
+            
+            correct_indices = [index for index, value in enumerate(correct_options) if value == 'on']
+            correct_options_json = json.dumps(correct_indices) 
+            
             db.execute(
-                'INSERT INTO Questions (quiz_id, question_text, options)'
-                ' VALUES (?, ?, ?)',
-                (quiz_id, question, options_json)
+                'INSERT INTO Questions (question_id, quiz_id, question_text, options, correct_options)'
+                ' VALUES (?, ?, ?, ?, ?)',
+                (next_question_id, quiz_id, question, options_json, correct_options_json)
             )
             db.commit()
 
             if 'add_next' in request.form:
                 return redirect(url_for('quiz.add_questions', quiz_id=quiz_id))
             else:
-                return render_template('dashboard.html')
+                return redirect(url_for('auth.dashboard'))
 
     return render_template('addQues.html', quiz_id=quiz_id)
