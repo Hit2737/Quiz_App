@@ -118,7 +118,7 @@ def login():
             session['user_id'] = user['id']
             session['current_question'] = 1
             print(session)
-            return redirect(url_for('auth.dashboard'));
+            return redirect(url_for('auth.dashboard'))
 
         flash(error)
 

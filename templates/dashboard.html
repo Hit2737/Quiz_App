@@ -12,13 +12,15 @@
     <h2>Active Quizzes:</h2>
     <ul>
         {% for quiz in Quizzes %}
-            <li style="text-align: center;">{{quiz['quiz_id']}}</li>
+            <li style="text-align: center;">{{quiz['quiz_name']}}</li>
         {% endfor %}
     <h2>Want to give quiz, Enter quiz code:</h2>
     <form method="post">
         <input type="text" name="quiz_code" id="quiz_code" required>
         <input type="submit" value="Start Quiz" class="btn btn-primary">
     </form>
+    <h2>Create a new quiz:</h2>
+    <a href="{{url_for('quiz.create')}}" type="button" class="btn btn-success">Create Quiz</a>
     <h4>Want to logout?</h4>
     <a href="{{url_for('auth.logout')}}" type="button" class="btn btn-outline-danger" style="bottom: 20px;">Logout</a>
     

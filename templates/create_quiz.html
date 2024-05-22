@@ -10,7 +10,7 @@
 <body>
     <div class="container mt-5">
         <h2>Create Quiz</h2>
-        <form action="/auth/create" method="POST">
+        <form action="{{url_for('quiz.create',quiz_id=quiz_id)}}" method="POST">
             <div class="form-group">
                 <label for="quiz_id">Quiz ID</label>
                 <input type="text" class="form-control" id="quiz_id" name="quiz_id" placeholder="Enter Quiz ID" required>
