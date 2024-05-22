@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS Questions(
     PRIMARY KEY (question_id, quiz_id),
     FOREIGN KEY (quiz_id) REFERENCES Quizzes (quiz_id) ON DELETE CASCADE
 );
-DROP TABLE IF EXISTS UserResponses;
+-- DROP TABLE IF EXISTS UserResponses;
 
 CREATE TABLE IF NOT EXISTS UserResponses (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
