@@ -11,9 +11,6 @@
     <h1>Welcome {{g.user['username']}}</h1>
     <h2>Active Quizzes:</h2>
     <ul>
-        {% for quiz in Quizzes %}
-            <li style="text-align: center;">{{quiz['quiz_name']}}</li>
-        {% endfor %}
     <h2>Want to give quiz, Enter quiz code:</h2>
     <form method="post">
         <input type="text" name="quiz_code" id="quiz_code" required>

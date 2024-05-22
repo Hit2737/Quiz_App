@@ -4,15 +4,14 @@ from flask import (
 from werkzeug.exceptions import abort
 from quiz_app.auth import login_required
 from quiz_app.db import get_db
+import json
 
 bp = Blueprint('quiz', __name__)
 
-@bp.route('/create', methods=('GET', 'POST'))
+@bp.route('/quiz/create', methods=('GET', 'POST'))
 @login_required
 def create():
-    print("hello")
     if request.method == 'POST':
-        print("hel")
         quiz_id = request.form['quiz_id']
         quiz_name = request.form['quiz_name']
         error = None
@@ -29,10 +28,10 @@ def create():
             db.execute(
                 'INSERT INTO Quizzes (quiz_id, quiz_name, admin_id)'
                 ' VALUES (?, ?, ?)',
-                (quiz_id, quiz_name, g.user['id'])
+                (quiz_id, quiz_name, int(g.user['id']))
             )
             db.commit()
-            return redirect(url_for('quiz.add_questions',quiz_id=quiz_id))  # changes karwana chhe url bhaturo jem banave e hisabe
+            return redirect(url_for('quiz.add_questions',quiz_id=quiz_id))
 
     return render_template('create_quiz.html')
 
@@ -40,6 +39,11 @@ def create():
 @bp.route('/add-questions/<quiz_id>', methods=('GET', 'POST'))
 @login_required
 def add_questions(quiz_id):
+    db = get_db()
+    quiz_data = db.execute('SELECT * FROM Quizzes WHERE quiz_id = ?', (quiz_id,)).fetchone()
+    if (quiz_data is None) or (quiz_data['admin_id'] != g.user['id']):
+        abort(404)
+
     if request.method == 'POST':
         question = request.form['question']
         options = request.form.getlist('options')
@@ -53,24 +57,17 @@ def add_questions(quiz_id):
         if error is not None:
             flash(error)
         else:
-            db = get_db()
+            options_json = json.dumps(options)  # Convert the options list to a JSON string
             db.execute(
-                'INSERT INTO Questions (quiz_id, question_text)'
-                ' VALUES (?, ?)',
-                (quiz_id, question)
+                'INSERT INTO Questions (quiz_id, question_text, options)'
+                ' VALUES (?, ?, ?)',
+                (quiz_id, question, options_json)
             )
-            question_id = db.execute('SELECT last_insert_rowid()').fetchone()[0]
-            for option in options:
-                db.execute(
-                    'INSERT INTO Options (question_id, option_text)'
-                    ' VALUES (?, ?)',
-                    (question_id, option)
-                )
             db.commit()
 
             if 'add_next' in request.form:
                 return redirect(url_for('quiz.add_questions', quiz_id=quiz_id))
             else:
-                return redirect(url_for('quiz.index'))
+                return render_template('dashboard.html')
 
     return render_template('addQues.html', quiz_id=quiz_id)
