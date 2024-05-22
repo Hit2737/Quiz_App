@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Awesome Quiz Application</title>
+    <title>IITGN Local Hosted Quiz WebApp</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -34,18 +34,25 @@
         .options li {
             margin-bottom: 10px;
         }
-        .options button {
-            width: 100%;
-            padding: 10px;
-            font-size: 1em;
+        .options label {
+            display: block;
             cursor: pointer;
+            padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
             background-color: #f9f9f9;
+            color: #333;
             transition: background-color 0.3s;
         }
-        .options button:hover {
+        .options input[type="checkbox"] {
+            display: none;
+        }
+        .options label:hover {
             background-color: #e0e0e0;
+        }
+        .options input[type="checkbox"]:checked + label {
+            background-color: #4CAF50;
+            color: white;
         }
         .footer {
             margin-top: 20px;
@@ -85,19 +92,25 @@
     <div class="question">
         {{ques.question_text}}
     </div>
-    <ul class="options">
-        {% for option in options %}
-        <li>
-            <button>{{option}}</button>
-        </li>
-        {% endfor %}
-    </ul>
     <div class="footer">
         <!-- getting total no. of questions from quiz code -->
         {{ques['question_id']}} of {{ques_count}} Questions
     </div>
     <div style="margin-top: 40px;"></div>
     <form method="post">
+        <ul class="options">
+            {% for option in options %}
+            <li>
+                <input type="checkbox" id="option{{ loop.index }}" name="selected_option" value="{{option}}">
+                <label for="option{{ loop.index }}">{{option}}</label>
+            </li>
+            {% endfor %}
+        </ul>
+        <div class="footer">
+            <!-- getting total no. of questions from quiz code -->
+            {{ques['question_id']}} of {{ques_count}} Questions
+        </div>
+        <div style="margin-top: 40px;"></div>
         <input type="submit" class="next-button" id="next" value="Next Question">
     </form>
 </div>
