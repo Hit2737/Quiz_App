@@ -34,4 +34,7 @@ def create_app(test_config=None):
     from . import quiz
     app.register_blueprint(quiz.bp)
 
+    from . import interface
+    app.register_blueprint(interface.bp)
+
     return app

@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, url_for
+    Blueprint, flash, g, redirect, render_template, request, url_for, session
 )
 from werkzeug.exceptions import abort
 from quiz_app.auth import login_required
@@ -75,6 +75,43 @@ def add_questions(quiz_id):
             if 'add_next' in request.form:
                 return redirect(url_for('quiz.add_questions', quiz_id=quiz_id))
             else:
-                return redirect(url_for('auth.dashboard'))
+                return redirect(url_for('interface.dashboard'))
 
     return render_template('addQues.html', quiz_id=quiz_id)
+
+@bp.route('/submit_response/<quiz_id>/<question_id>', methods=['POST'])
+@login_required
+def submit_response(quiz_id, question_id):
+    db = get_db()
+    user_id = g.user['id']
+    selected_options = request.form.getlist('selected_option')
+    print("Form Data:", request.form)  # Print the entire form data for debugging
+    print("Selected Options:", selected_options)  # Print selected options
+    if not selected_options:
+        flash('You must select at least one option.')
+        session['current_question'] = question_id
+        session['quiz_id'] = quiz_id
+        return redirect(url_for('interface.student_interface'))
+    selected_options_indices = [int(option) for option in selected_options] 
+    selected_options_json = json.dumps(selected_options_indices)  # Convert the list to a JSON string
+    print(selected_options_json)
+    db.execute(
+        'INSERT INTO UserResponses (user_id, quiz_id, question_id, selected_options)'
+        ' VALUES (?, ?, ?, ?)',
+        (user_id, quiz_id, question_id, selected_options_json)
+    )
+    db.commit()
+
+    next_question_id = int(question_id) + 1
+    # Check if there are more questions
+    next_question = db.execute(
+        'SELECT * FROM Questions WHERE quiz_id = ? AND question_id = ?',
+        (quiz_id, next_question_id)
+    ).fetchone()
+
+    if next_question is None:
+        return redirect(url_for('interface.thankyou'))
+    else:
+        session['current_question'] = next_question_id
+        session['quiz_id'] = quiz_id
+        return redirect(url_for('interface.student_interface'))
