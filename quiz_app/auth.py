@@ -83,8 +83,6 @@ def login():
         if error is None:
             session.clear()
             session['user_id'] = user['id']
-            session['current_question'] = 1
-            print(session)
             return redirect(url_for('interface.dashboard'))
 
         flash(error)
