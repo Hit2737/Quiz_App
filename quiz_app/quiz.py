@@ -87,31 +87,27 @@ def submit_response(quiz_id, question_id):
     selected_options = request.form.getlist('selected_option')
     print("Form Data:", request.form)  # Print the entire form data for debugging
     print("Selected Options:", selected_options)  # Print selected options
-    if not selected_options:
-        flash('You must select at least one option.')
-        session['current_question'] = question_id
-        session['quiz_id'] = quiz_id
-        return redirect(url_for('interface.student_interface'))
     selected_options_indices = [int(option) for option in selected_options] 
     selected_options_json = json.dumps(selected_options_indices)  # Convert the list to a JSON string
     print(selected_options_json)
-    db.execute(
-        'INSERT INTO UserResponses (user_id, quiz_id, question_id, selected_options)'
-        ' VALUES (?, ?, ?, ?)',
-        (user_id, quiz_id, question_id, selected_options_json)
-    )
-    db.commit()
-
-    next_question_id = int(question_id) + 1
-    # Check if there are more questions
-    next_question = db.execute(
-        'SELECT * FROM Questions WHERE quiz_id = ? AND question_id = ?',
-        (quiz_id, next_question_id)
-    ).fetchone()
-
-    if next_question is None:
-        return redirect(url_for('interface.thankyou'))
+    #checking if user has already attempted the question
+    if db.execute(
+        'SELECT * FROM UserResponses WHERE user_id = ? AND quiz_id = ? AND question_id = ?',
+        (user_id, quiz_id, question_id)
+    ).fetchone():
+        return redirect(url_for('interface.dashboard'))
     else:
-        session['current_question'] = next_question_id
-        session['quiz_id'] = quiz_id
-        return redirect(url_for('interface.student_interface'))
+        db.execute(
+            'INSERT INTO UserResponses (user_id, quiz_id, question_id, selected_options)'
+            ' VALUES (?, ?, ?, ?)',
+            (user_id, quiz_id, question_id, selected_options_json)
+        )
+        db.commit()
+
+    question_id = int(question_id) + 1
+    ques_count = db.execute(
+        'SELECT COUNT(*) FROM Questions WHERE quiz_id = ?', (quiz_id,)
+    ).fetchone()
+    session['current_question'] = question_id
+    session['quiz_id'] = quiz_id
+    return redirect(url_for('interface.student_interface'))
