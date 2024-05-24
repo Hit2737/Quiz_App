@@ -1,12 +1,7 @@
 CREATE TABLE IF NOT EXISTS user(
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username TEXT UNIQUE NOT NULL,
-  password TEXT NOT NULL
-);
-
-CREATE TABLE IF NOT EXISTS admin(
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  username TEXT UNIQUE NOT NULL,
+  email_id UNIQUE NOT NULL,
   password TEXT NOT NULL
 );
 
@@ -15,7 +10,7 @@ CREATE TABLE IF NOT EXISTS Quizzes(
     quiz_id TEXT PRIMARY KEY NOT NULL,
     quiz_name TEXT NOT NULL,
     admin_id INTEGER,
-    FOREIGN KEY (admin_id) REFERENCES Admin (admin_id) ON DELETE CASCADE
+    FOREIGN KEY (admin_id) REFERENCES user (admin_id) ON DELETE CASCADE
 );
 
 -- Create the table for questions with nested options in JSON

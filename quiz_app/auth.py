@@ -37,10 +37,13 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        email_id = request.form['email_id']
         db = get_db()
         error = None
 
-        if not username:
+        if not email_id.endswith('@iitgn.ac.in'):
+            error = 'You must login from your IITGN email id.'
+        elif not username:
             error = 'Username is required.'
         elif not password:
             error = 'Password is required.'
@@ -48,8 +51,8 @@ def register():
         if error is None:
             try:
                 db.execute(
-                    "INSERT INTO user (username, password) VALUES (?, ?)",
-                    (username, generate_password_hash(password)),
+                    "INSERT INTO user (username, password, email_id) VALUES (?, ?, ?)",
+                    (username, generate_password_hash(password), email_id),
                 )
                 db.commit()
             except db.IntegrityError:
