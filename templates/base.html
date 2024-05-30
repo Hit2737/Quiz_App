@@ -9,13 +9,16 @@
   {% block inhead %}{% endblock %}
 </head>
 <body>
-  {% with messages = get_flashed_messages() %}  
-    {% if messages %}  
-      {% for message in messages %}  
-        <p>{{ message }}</p>  
-      {% endfor %}  
-    {% endif %}  
-  {% endwith %}  
+  <div class="pop_up">
+    {% with messages = get_flashed_messages() %}  
+      {% if messages %}  
+        {% for message in messages %}  
+          <p>{{ message }}</p>  
+        {% endfor %}  
+      {% endif %}  
+    {% endwith %}  
+  </div>
   {% block content %}{% endblock %}
+  
 </body>
 </html>

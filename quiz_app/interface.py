@@ -38,6 +38,8 @@ def student_interface():
         'SELECT * FROM Quizzes WHERE quiz_id = ?', (session['quiz_id'],)
     ).fetchone()
     if(quiz == None):
+        error = "Quiz not found"
+        flash(error)
         return redirect(url_for('interface.dashboard'))
     ques_count = get_db().execute(
         'SELECT COUNT(*) FROM Questions WHERE quiz_id = ?', (quiz['quiz_id'],)
