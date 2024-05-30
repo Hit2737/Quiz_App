@@ -1,29 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA_Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <title>Dashboard</title>
-</head>
-<body style="display: flex; flex-direction: column; align-items: center;">
+{% extends 'base.html' %}
+    {% block title %}Dashboard{% endblock %}
+    {% block content %}
     <h1>Welcome {{g.user['username']}}</h1>
     <h2>Active Quizzes:</h2>
-    <ul>
-        {% for quiz in Quizzes %}
-            <li style="text-align: center;">{{quiz['quiz_name']}}</li>
-        {% endfor %}
-    <ul>
+    <div class="active_quizzes">
+        <ul>
+            {% for quiz in Quizzes %}
+                <li>{{quiz['quiz_name']}}</li>
+            {% endfor %}
+        </ul>
+    </div>
     <h2>Want to give quiz, Enter quiz code:</h2>
     <form method="post">
+        <label for="quiz_code">Quiz Code:</label>
         <input type="text" name="quiz_code" id="quiz_code" required>
-        <input type="submit" value="Start Quiz" class="btn btn-primary">
+        <input type="submit" value="Start Quiz" class="btn btn-outline-primary">
     </form>
     <h2>Create a new quiz:</h2>
-    <a href="{{url_for('quiz.create')}}" type="button" class="btn btn-success">Create Quiz</a>
+    <a href="{{url_for('quiz.create')}}" type="button" class="btn btn-outline-success">Create Quiz</a>
     <h4>Want to logout?</h4>
     <a href="{{url_for('auth.logout')}}" type="button" class="btn btn-outline-danger" style="bottom: 20px;">Logout</a>
-    
-</body>
-</html>
+    {% endblock %}
