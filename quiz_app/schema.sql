@@ -31,6 +31,7 @@ CREATE TABLE IF NOT EXISTS UserResponses (
     quiz_id TEXT NOT NULL,
     question_id INTEGER NOT NULL,
     selected_options JSON NOT NULL,
+    time_stamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES User (id),
     FOREIGN KEY (quiz_id) REFERENCES Quizzes (quiz_id),
     FOREIGN KEY (question_id) REFERENCES Questions(question_id)
