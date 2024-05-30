@@ -1,8 +1,6 @@
-import functools
 from flask import(
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
-from werkzeug.security import check_password_hash, generate_password_hash
 from quiz_app.db import get_db
 from quiz_app.auth import login_required
 import json
@@ -18,12 +16,22 @@ def dashboard():
     if(request.method == 'POST'):
         session['current_question'] = 1
         session['quiz_id'] = request.form['quiz_code']
-        print(session)
         if get_db().execute(
         'SELECT * FROM UserResponses WHERE user_id = ? AND quiz_id = ?', (g.user['id'], session['quiz_id'],)).fetchone():
             error2 = "You have already attempted this quiz"
+        elif get_db().execute(
+        'SELECT * FROM Quizzes WHERE quiz_id = ?', (session['quiz_id'],)).fetchone() is None:
+            error2 = "Quiz not found"
+        elif get_db().execute(
+        'SELECT * FROM Quizzes WHERE quiz_id = ? AND admin_id = ?', (session['quiz_id'], g.user['id'],)).fetchone() is not None:
+            error2 = "You cannot attempt your own quiz"
+        elif get_db().execute(
+        'SELECT * FROM Quizzes WHERE quiz_id = ? AND start_time != ""', (session['quiz_id'],)).fetchone() is None or str(get_db().execute(
+            'SELECT * FROM Quizzes WHERE quiz_id = ? ', (session['quiz_id'],)).fetchone()['start_time']) > get_db().execute('SELECT CURRENT_TIMESTAMP').fetchone()[0]:
+            error2 = "Quiz has not started yet"
         else:
-            error2 = None;
+            error2 = None
+            flash("Quiz Started")
             return redirect(url_for('interface.student_interface'))
     if error2 is not None:
         flash(error2)
@@ -37,10 +45,6 @@ def student_interface():
     quiz = get_db().execute(
         'SELECT * FROM Quizzes WHERE quiz_id = ?', (session['quiz_id'],)
     ).fetchone()
-    if(quiz == None):
-        error = "Quiz not found"
-        flash(error)
-        return redirect(url_for('interface.dashboard'))
     ques_count = get_db().execute(
         'SELECT COUNT(*) FROM Questions WHERE quiz_id = ?', (quiz['quiz_id'],)
     ).fetchone()
