@@ -1,119 +1,114 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IITGN Local Hosted Quiz WebApp</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-        }
-        .quiz-container {
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            position: relative; /* Needed for positioning the button inside the container */
-        }
-        .quiz-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        .question {
-            font-size: 1.2em;
-            margin-bottom: 10px;
-        }
-        .options {
-            list-style-type: none;
-            padding: 0;
-        }
-        .options li {
-            margin-bottom: 10px;
-        }
-        .options label {
-            display: block;
-            cursor: pointer;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-            color: #333;
-            transition: background-color 0.3s;
-        }
-        .options input[type="checkbox"] {
-            display: none;
-        }
-        .options label:hover {
-            background-color: #e0e0e0;
-        }
-        .options input[type="checkbox"]:checked + label {
-            background-color: #4CAF50;
-            color: white;
-        }
-        .footer {
-            margin-top: 20px;
-            text-align: left;
-        }
-        .next-button {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            padding: 10px 20px;
-            font-size: 1em;
-            cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #4CAF50;
-            color: white;
-            transition: background-color 0.3s;
-        }
-        .next-button:hover {
-            background-color: #45a049;
-        }
-        .username {
-            font-size: 1em;
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
+{% extends 'base.html' %}
+    {% block title %}IITGN Local Hosted Quiz WebApp{% endblock %}
+    {% block inhead %}
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+            }
+            .quiz-container {
+                max-width: 600px;
+                margin: 50px auto;
+                padding: 20px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                position: relative; /* Needed for positioning the button inside the container */
+            }
+            .quiz-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+            }
+            .question {
+                font-size: 1.2em;
+                margin-bottom: 10px;
+            }
+            .options {
+                list-style-type: none;
+                padding: 0;
+            }
+            .options li {
+                margin-bottom: 10px;
+            }
+            .options label {
+                display: block;
+                cursor: pointer;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                background-color: #f9f9f9;
+                color: #333;
+                transition: background-color 0.3s;
+            }
+            .options input[type="checkbox"] {
+                display: none;
+            }
+            .options label:hover {
+                background-color: #e0e0e0;
+            }
+            .options input[type="checkbox"]:checked + label {
+                background-color: #4CAF50;
+                color: white;
+            }
+            .footer {
+                margin-top: 20px;
+                text-align: left;
+            }
+            .next-button {
+                position: absolute;
+                bottom: 20px;
+                right: 20px;
+                padding: 10px 20px;
+                font-size: 1em;
+                cursor: pointer;
+                border: none;
+                border-radius: 5px;
+                background-color: #4CAF50;
+                color: white;
+                transition: background-color 0.3s;
+            }
+            .next-button:hover {
+                background-color: #45a049;
+            }
+            .username {
+                font-size: 1em;
+                font-weight: bold;
+            }
+        </style>
+    {% endblock %}
 
-<div class="quiz-container">
-    <div class="quiz_code-container">
-        Quiz Code: <span id="quiz_code">{{quiz.quiz_id}}</span>
-    </div>
-    <div class="quiz-header">
-        <div class="username">Username: <span id="username">JohnDoe</span></div>
-    </div>
-    <div class="question">
-        {{ques.question_text}}
-    </div>
-    <div class="footer">
-        <!-- getting total no. of questions from quiz code -->
-        {{ques['question_id']}} of {{ques_count}} Questions
-    </div>
-    <div style="margin-top: 40px;"></div>
-    <form method="post" action="{{ url_for('quiz.submit_response',quiz_id=quiz.quiz_id, question_id=ques['question_id'])}}" >
-        <ul class="options">
-            {% for option in options %}
-            <li>
-                <input type="checkbox" id="option{{ loop.index }}" name="selected_option" value="{{loop.index}}">
-                <label for="option{{ loop.index }}">{{option}}</label>
-            </li>
-            {% endfor %}
-        </ul>
+    {% block content%}
+    <div class="quiz-container">
+        <div class="quiz_code-container">
+            Quiz Code: <span id="quiz_code">{{quiz.quiz_id}}</span>
+        </div>
+        <div class="quiz-header">
+            <div class="username">Username: <span id="username">JohnDoe</span></div>
+        </div>
+        <div class="question">
+            {{ques.question_text}}
+        </div>
         <div class="footer">
             <!-- getting total no. of questions from quiz code -->
             {{ques['question_id']}} of {{ques_count}} Questions
         </div>
         <div style="margin-top: 40px;"></div>
-        <input type="submit" class="next-button" id="next" value="Next Question">
-    </form>
-</div>
-
-</body>
-</html>
+        <form method="post" action="{{ url_for('quiz.submit_response',quiz_id=quiz.quiz_id, question_id=ques['question_id'])}}" >
+            <ul class="options">
+                {% for option in options %}
+                <li>
+                    <input type="checkbox" id="option{{ loop.index }}" name="selected_option" value="{{loop.index}}">
+                    <label for="option{{ loop.index }}">{{option}}</label>
+                </li>
+                {% endfor %}
+            </ul>
+            <div class="footer">
+                <!-- getting total no. of questions from quiz code -->
+                {{ques['question_id']}} of {{ques_count}} Questions
+            </div>
+            <div style="margin-top: 40px;"></div>
+            <input type="submit" class="next-button" id="next" value="Next Question">
+        </form>
+    </div>
+    {% endblock %}
