@@ -48,15 +48,23 @@ def add_questions(quiz_id):
         question = request.form['question']
         options = request.form.getlist('options')
         correct_options = request.form.getlist('correct_options')
-        error = None
 
+        hours = request.form['hours']
+        minutes = request.form['minutes']
+        seconds = request.form['seconds']
+        if not hours and not minutes and not seconds:
+            duration = None
+        else:
+            if not hours:
+                hours = '00'
+            if not minutes:
+                minutes = '00'
+            if not seconds:
+                seconds = '00'
+            duration = hours + ':' + minutes + ':' + seconds + '.000'
+        print("Duration:", duration)
         if not question:
-            error = 'Question is required.'
-        elif not options:
-            error = 'Options are required.'
-
-        if error is not None:
-            flash(error)
+            flash('Question is required.')
         else:
             result= db.execute('SELECT MAX(question_id) FROM Questions WHERE quiz_id = ?', (quiz_id,)).fetchone()
             next_question_id= (result[0] or 0) + 1
@@ -66,16 +74,16 @@ def add_questions(quiz_id):
             correct_options_json = json.dumps(correct_indices) 
             
             db.execute(
-                'INSERT INTO Questions (question_id, quiz_id, question_text, options, correct_options)'
-                ' VALUES (?, ?, ?, ?, ?)',
-                (next_question_id, quiz_id, question, options_json, correct_options_json)
+                'INSERT INTO Questions (question_id, quiz_id, question_text, options, correct_options, duration)'
+                ' VALUES (?, ?, ?, ?, ?, ?)',
+                (next_question_id, quiz_id, question, options_json, correct_options_json, duration)
             )
             db.commit()
 
             if 'add_next' in request.form:
                 return redirect(url_for('quiz.add_questions', quiz_id=quiz_id))
             else:
-                return redirect(url_for('interface.dashboard'))
+                return redirect(url_for('quiz.start_time', quiz_id=quiz_id))
 
     return render_template('addQues.html', quiz_id=quiz_id)
 
@@ -105,9 +113,38 @@ def submit_response(quiz_id, question_id):
         db.commit()
 
     question_id = int(question_id) + 1
-    ques_count = db.execute(
-        'SELECT COUNT(*) FROM Questions WHERE quiz_id = ?', (quiz_id,)
-    ).fetchone()
     session['current_question'] = question_id
     session['quiz_id'] = quiz_id
     return redirect(url_for('interface.student_interface'))
+
+@bp.route('/quiz/start_time/<quiz_id>', methods=('GET', 'POST'))
+@login_required
+def start_time(quiz_id):
+    currenttime = get_db().execute('SELECT CURRENT_TIMESTAMP').fetchone()[0]
+    date,time = currenttime.split(' ')
+    y,m,d = date.split('-')
+    h,min,sec = time.split(':')
+    currenttime = y+'-'+m+'-'+d+'T'+h+':'+min
+    if request.method == 'POST':
+        if 'manual' in request.form:
+            return redirect(url_for('interface.dashboard'))
+        start_datetime = request.form['start_datetime']
+        date,time = start_datetime.split('T')
+        start_datetime = date + ' ' + time + ':00.000'  
+        print(start_datetime)
+        error = None
+        if not start_datetime:
+            error = 'Start date is required.'
+        if error is not None:
+            flash(error)
+        else:
+            db = get_db()
+            db.execute(
+                'UPDATE Quizzes SET start_time = ? WHERE quiz_id = ?',
+                (start_datetime, quiz_id)
+            )
+            db.commit()
+            return redirect(url_for('interface.dashboard'))
+        
+    return render_template('start_time.html', quiz_id=quiz_id, currenttime=currenttime)
+    

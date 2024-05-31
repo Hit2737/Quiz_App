@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+    {% block title %}Create Quiz{% endblock %}
+    {% block content %}
+    <div class="container mt-5">
+        <h2>Do you want your Quiz {{quiz_id}} to start Automatically? Add Start Date and Time now</h2>
+        <form action="{{url_for('quiz.start_time',quiz_id=quiz_id)}}" method="POST">
+            <div class="form-group">
+                <label for="start_datetime">Add Time for Starting your Quiz</label>
+                <input type="datetime-local" class="form-control" id="start_datetime" name="start_datetime" min="{{currenttime}}" required>
+            </div>
+            <button type="submit" name="automatic" class="btn btn-outline-success">Add Date-Time</button>
+        </form>
+        <h3>OR Proceed with Manual Start</h3>
+        <a href="{{url_for('interface.dashboard')}}" type="button" class="btn btn-outline-primary">Manual</a>
+        
+    </div>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    {% endblock %}

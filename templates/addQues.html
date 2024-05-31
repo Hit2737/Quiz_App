@@ -8,6 +8,17 @@
                 <label for="question">Question</label>
                 <input type="text" class="form-control" id="question" name="question" placeholder="Enter the question" required>
             </div>
+            <div class="time-limit">
+                <p>For automatic question lock and unlock you can add time limit for your question</p>
+                <label for="time-limit">Time Limit: </label>
+                <input type="number" id="hours" name="hours" min="0" max="5">
+                <label for="hours">hr.</label>
+                <input type="number" id="minutes" name="minutes" min="0" max="59">
+                <label for="minutes">min.</label>
+                <input type="number" id="seconds" name="seconds" min="0" max="59">
+                <label for="seconds">sec.</label>
+            </div>
+            <p>You can also proceed with our manual lock-unlock feature by leaving the time blocks unfilled</p>
             <div id="options-container" class="form-group">
                 <label for="options">Options</label>
                 <div class="input-group mb-2">
@@ -22,7 +33,7 @@
             <button type="button" class="btn btn-secondary mb-3" id="add-option">Add Option</button>
             <div>
                 <button type="submit" name="add_next" class="btn btn-primary">Add Next Question</button>
-                <button type="submit" class="btn btn-success">Submit Quiz</button>
+                <button type="submit" class="btn btn-success">Create Quiz</button>
             </div>
         </form>
     </div>
