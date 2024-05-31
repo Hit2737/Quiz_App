@@ -18,6 +18,19 @@
     </form>
     <h2>Create a new quiz:</h2>
     <a href="{{url_for('quiz.create')}}" type="button" class="btn btn-outline-success">Create Quiz</a>
+
+    <h2>Your Quizzes:</h2>
+    <div class="your_quizzes">
+        <ul>
+            {% for quiz in Quizzes %}
+                {% if quiz['admin_id'] == g.user['id'] %}
+                    <li>{{quiz['quiz_name']}}</li>
+                    <a href="{{url_for('quiz.create')}}" type="button" class="btn btn-outline-success">Create Quiz</a>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+
     <h4>Want to logout?</h4>
     <a href="{{url_for('auth.logout')}}" type="button" class="btn btn-outline-danger" style="bottom: 20px;">Logout</a>
     {% endblock %}
