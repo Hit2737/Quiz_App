@@ -128,7 +128,10 @@ def start_time(quiz_id):
     if request.method == 'POST':
         if 'manual' in request.form:
             return redirect(url_for('interface.dashboard'))
-        start_datetime = request.form['start_datetime']+':00.000'
+        start_datetime = request.form['start_datetime']
+        date,time = start_datetime.split('T')
+        start_datetime = date + ' ' + time + ':00.000'  
+        print(start_datetime)
         error = None
         if not start_datetime:
             error = 'Start date is required.'
