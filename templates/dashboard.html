@@ -25,7 +25,7 @@
             {% for quiz in Quizzes %}
                 {% if quiz['admin_id'] == g.user['id'] %}
                     <li>{{quiz['quiz_name']}}</li>
-                    <a href="{{url_for('quiz.create')}}" type="button" class="btn btn-outline-success">Create Quiz</a>
+                    <a href="{{url_for('quiz.edit_quiz',quiz_id=quiz['quiz_id'])}}" type="button" class="btn btn-outline-success">Edit Quiz</a>
                 {% endif %}
             {% endfor %}
         </ul>
