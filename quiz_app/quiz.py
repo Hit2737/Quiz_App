@@ -149,4 +149,18 @@ def start_time(quiz_id):
             return redirect(url_for('interface.dashboard'))
         
     return render_template('start_time.html', quiz_id=quiz_id, currenttime=currenttime)
+
+@bp.route('/quiz/edit/<int:quiz_id>', methods=['GET', 'POST'])
+def edit_quiz(quiz_id):
+    db = get_db()
+    quiz_data = db.execute('SELECT * FROM Quizzes WHERE quiz_id = ?', (quiz_id,)).fetchone()
+    # question_data = db.execute('SELECT * FROM Questions WHERE quiz_id = ?', (quiz_id,)).fetchone()
+    if (quiz_data is None) or (quiz_data['admin_id'] != g.user['id']):
+        abort(404)
+
+
+    questions = db.execute('SELECT * FROM Questions WHERE quiz_id = ? ORDER BY question_id', (quiz_id,)).fetchall()
+    # questions['options'] = (questions['options'])
+    # questions['correct_options'] = (questions['correct_options'])
+    return render_template('edit_quiz.html', quiz_id=quiz_id, questions=questions)
     
