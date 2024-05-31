@@ -35,7 +35,6 @@ def create():
 
     return render_template('create_quiz.html')
 
-
 @bp.route('/add-questions/<quiz_id>', methods=('GET', 'POST'))
 @login_required
 def add_questions(quiz_id):
@@ -43,50 +42,48 @@ def add_questions(quiz_id):
     quiz_data = db.execute('SELECT * FROM Quizzes WHERE quiz_id = ?', (quiz_id,)).fetchone()
     if (quiz_data is None) or (quiz_data['admin_id'] != g.user['id']):
         abort(404)
-
     if request.method == 'POST':
-        question = request.form['question']
+        questions = request.form.getlist('question')
         options = request.form.getlist('options')
         correct_options = request.form.getlist('correct_options')
-
-        hours = request.form['hours']
-        minutes = request.form['minutes']
-        seconds = request.form['seconds']
-        if not hours and not minutes and not seconds:
-            duration = None
-        else:
-            if not hours:
-                hours = '00'
-            if not minutes:
-                minutes = '00'
-            if not seconds:
-                seconds = '00'
-            duration = hours + ':' + minutes + ':' + seconds + '.000'
-        print("Duration:", duration)
-        if not question:
-            flash('Question is required.')
-        else:
-            result= db.execute('SELECT MAX(question_id) FROM Questions WHERE quiz_id = ?', (quiz_id,)).fetchone()
-            next_question_id= (result[0] or 0) + 1
-            options_json = json.dumps(options)  # Convert the options list to a JSON string
-            
-            correct_indices = [index for index, value in enumerate(correct_options) if value == 'on']
-            print(correct_options)
-            # correct_indices = [int(index) for index in correct_options]
-            correct_options_json = json.dumps(correct_indices) 
-            print(correct_indices)
-            db.execute(
-                'INSERT INTO Questions (question_id, quiz_id, question_text, options, correct_options, duration)'
-                ' VALUES (?, ?, ?, ?, ?, ?)',
-                (next_question_id, quiz_id, question, options_json, correct_options_json, duration)
-            )
-            db.commit()
-
-            if 'add_next' in request.form:
-                return redirect(url_for('quiz.add_questions', quiz_id=quiz_id))
+        hours = request.form.getlist('hours')
+        minutes = request.form.getlist('minutes')
+        seconds = request.form.getlist('seconds')
+        for i in range(len(questions)):
+            question = questions[i]
+            option_list = options[i].split(',')
+            correct_option_list = correct_options[i].split(',')
+            hour = hours[i]
+            minute = minutes[i]
+            second = seconds[i]
+            if not hour and not minute and not second:
+                duration = None
             else:
-                return redirect(url_for('quiz.start_time', quiz_id=quiz_id))
-
+                if not hour:
+                    hour = '00'
+                if not minute:
+                    minute = '00'
+                if not second:
+                    second = '00'
+                duration = hour + ':' + minute + ':' + second + '.000'
+            if not question:
+                flash('Question is required.')
+            else:
+                result = db.execute('SELECT MAX(question_id) FROM Questions WHERE quiz_id = ?', (quiz_id,)).fetchone()
+                next_question_id = (result[0] or 0) + 1
+                options_json = json.dumps(option_list)  # Convert the options list to a JSON string
+                correct_indices = [index for index, value in enumerate(correct_option_list) if value == 'on']
+                correct_options_json = json.dumps(correct_indices)
+                db.execute(
+                    'INSERT INTO Questions (question_id, quiz_id, question_text, options, correct_options, duration)'
+                    ' VALUES (?, ?, ?, ?, ?, ?)',
+                    (next_question_id, quiz_id, question, options_json, correct_options_json, duration)
+                )
+                db.commit()
+        if 'add_next' in request.form:
+            return redirect(url_for('quiz.add_questions', quiz_id=quiz_id))
+        else:
+            return redirect(url_for('quiz.start_time', quiz_id=quiz_id))
     return render_template('addQues.html', quiz_id=quiz_id)
 
 @bp.route('/submit_response/<quiz_id>/<question_id>', methods=['POST'])
