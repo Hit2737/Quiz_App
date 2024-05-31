@@ -158,9 +158,17 @@ def edit_quiz(quiz_id):
     if (quiz_data is None) or (quiz_data['admin_id'] != g.user['id']):
         abort(404)
 
-
     questions = db.execute('SELECT * FROM Questions WHERE quiz_id = ? ORDER BY question_id', (quiz_id,)).fetchall()
-    # questions['options'] = (questions['options'])
-    # questions['correct_options'] = (questions['correct_options'])
-    return render_template('edit_quiz.html', quiz_id=quiz_id, questions=questions)
+    print(type(questions))
+    print(questions)
+    questions_list = []
+    for question in questions:
+        question_dict = dict(question)
+        print(question_dict['options'])
+        print(question_dict['correct_options'])
+        question_dict['options'] = json.loads(question_dict['options'])
+        question_dict['correct_options'] = json.loads(question_dict['correct_options'])
+        questions_list.append(question_dict)
+
+    return render_template('edit_quiz.html', quiz_id=quiz_id, questions=questions_list)
     

@@ -7,7 +7,7 @@
     <form action="{{ url_for('quiz.edit_quiz', quiz_id=quiz_id) }}" method="POST" id="question-form-{{ question['question_id'] }}">
         <input type="hidden" name="question_id" value="{{ question['question_id'] }}">
         <div class="form-group">
-            <label for="question">Question {{question['question_id']}}</label>
+            <label for="question">Question {{ question['question_id'] }}</label>
             <input type="text" class="form-control" id="question" name="question" value="{{ question['question_text'] }}" required>
         </div>
         <div class="time-limit">
@@ -22,7 +22,23 @@
         </div>
         <p>You can also proceed with our manual lock-unlock feature by leaving the time blocks unfilled</p>
         
-        
+        <div id="options-container-{{ question['question_id'] }}" class="form-group">
+            <label for="options">Options</label>
+            {% set options = question['options'] %}
+            {% set correct_options = question['correct_options'] %}
+            {% for index in range(options | length) %}
+            <div class="input-group mb-2 option-item" id="option-item-{{ question['question_id'] }}-{{ index }}">
+                <input type="text" class="form-control" name="options" value="{{ options[index] }}" required>
+                <div class="input-group-append">
+                    <div class="input-group-text">
+                        <input type="hidden" name="correct_options_{{ index }}" value="off">
+                        <input type="checkbox" name="correct_options_{{ index }}" value="on" {% if correct_options[index] == 0 %}checked{% endif %}>
+                    </div>
+                    <button type="button" class="btn btn-danger" onclick="deleteOption({{ question['question_id'] }}, {{ index }})">Delete</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
         
         <button type="button" class="btn btn-secondary mb-3" onclick="addOption({{ question['question_id'] }})">Add Option</button>
         <div>
@@ -41,20 +57,21 @@
         let container = $('#options-container-' + questionId);
         let index = container.children().length;
         container.append(
-            '<div class="input-group mb-2 option-item">' +
+            '<div class="input-group mb-2 option-item" id="option-item-' + questionId + '-' + index + '">' +
             '<input type="text" class="form-control" name="options" placeholder="Enter option" required>' +
             '<div class="input-group-append">' +
             '<div class="input-group-text">' +
             '<input type="hidden" name="correct_options_' + index + '" value="off">' +
             '<input type="checkbox" name="correct_options_' + index + '" value="on">' +
             '</div>' +
+            '<button type="button" class="btn btn-danger" onclick="deleteOption(' + questionId + ', ' + index + ')">Delete</button>' +
             '</div>' +
             '</div>'
         );
     }
+
+    function deleteOption(questionId, index) {
+        $('#option-item-' + questionId + '-' + index).remove();
+    }
 </script>
 {% endblock %}
-
-
-
-
