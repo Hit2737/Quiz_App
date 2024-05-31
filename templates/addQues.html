@@ -10,14 +10,15 @@
             </div>
             <div class="time-limit">
                 <p>For automatic question lock and unlock you can add time limit for your question</p>
-                <input type="number" min="0" max="5">
+                <label for="time-limit">Time Limit: </label>
+                <input type="number" id="hours" name="hours" min="0" max="5">
                 <label for="hours">hr.</label>
-                <input type="number" min="0" max="59">
+                <input type="number" id="minutes" name="minutes" min="0" max="59">
                 <label for="minutes">min.</label>
-                <input type="number" min="5" max="59">
+                <input type="number" id="seconds" name="seconds" min="0" max="59">
                 <label for="seconds">sec.</label>
             </div>
-            <p>You can also proceed with our manual lock-unlock feature</p>
+            <p>You can also proceed with our manual lock-unlock feature by leaving the time blocks unfilled</p>
             <div id="options-container" class="form-group">
                 <label for="options">Options</label>
                 <div class="input-group mb-2">

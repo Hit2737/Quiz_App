@@ -49,6 +49,20 @@ def add_questions(quiz_id):
         options = request.form.getlist('options')
         correct_options = request.form.getlist('correct_options')
 
+        hours = request.form['hours']
+        minutes = request.form['minutes']
+        seconds = request.form['seconds']
+        if not hours and not minutes and not seconds:
+            duration = None
+        else:
+            if not hours:
+                hours = '00'
+            if not minutes:
+                minutes = '00'
+            if not seconds:
+                seconds = '00'
+            duration = hours + ':' + minutes + ':' + seconds + '.000'
+        print("Duration:", duration)
         if not question:
             flash('Question is required.')
         else:
@@ -60,9 +74,9 @@ def add_questions(quiz_id):
             correct_options_json = json.dumps(correct_indices) 
             
             db.execute(
-                'INSERT INTO Questions (question_id, quiz_id, question_text, options, correct_options)'
-                ' VALUES (?, ?, ?, ?, ?)',
-                (next_question_id, quiz_id, question, options_json, correct_options_json)
+                'INSERT INTO Questions (question_id, quiz_id, question_text, options, correct_options, duration)'
+                ' VALUES (?, ?, ?, ?, ?, ?)',
+                (next_question_id, quiz_id, question, options_json, correct_options_json, duration)
             )
             db.commit()
 
