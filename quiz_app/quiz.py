@@ -71,8 +71,10 @@ def add_questions(quiz_id):
             options_json = json.dumps(options)  # Convert the options list to a JSON string
             
             correct_indices = [index for index, value in enumerate(correct_options) if value == 'on']
+            print(correct_options)
+            # correct_indices = [int(index) for index in correct_options]
             correct_options_json = json.dumps(correct_indices) 
-            
+            print(correct_indices)
             db.execute(
                 'INSERT INTO Questions (question_id, quiz_id, question_text, options, correct_options, duration)'
                 ' VALUES (?, ?, ?, ?, ?, ?)',
