@@ -26,6 +26,8 @@
                 {% if quiz['admin_id'] == g.user['id'] %}
                     <li>{{quiz['quiz_name']}}</li>
                     <a href="{{url_for('quiz.edit_quiz',quiz_id=quiz['quiz_id'])}}" type="button" class="btn btn-outline-success">Edit Quiz</a>
+                    <a href="{{url_for('quiz.delete_quiz',quiz_id=quiz['quiz_id'])}}" type="button" class="btn btn-outline-danger">Delete Quiz</a>
+                    <a href="{{url_for('quiz.start_quiz',quiz_id=quiz['quiz_id'])}}" type="button" class="btn btn-outline-primary">Start Quiz</a>
                 {% endif %}
             {% endfor %}
         </ul>

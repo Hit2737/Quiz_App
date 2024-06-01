@@ -122,11 +122,9 @@ def submit_response(quiz_id, question_id):
 @bp.route('/quiz/start_time/<quiz_id>', methods=('GET', 'POST'))
 @login_required
 def start_time(quiz_id):
-    currenttime = get_db().execute('SELECT CURRENT_TIMESTAMP').fetchone()[0]
-    date,time = currenttime.split(' ')
-    y,m,d = date.split('-')
-    h,min,sec = time.split(':')
-    currenttime = y+'-'+m+'-'+d+'T'+h+':'+min
+    currenttime = get_db().execute('SELECT DATETIME("now","localtime")').fetchone()[0]
+    currenttime = currenttime[:-2] + '00'
+    print(currenttime)
     if request.method == 'POST':
         if 'manual' in request.form:
             return redirect(url_for('interface.dashboard'))
@@ -164,3 +162,19 @@ def edit_quiz(quiz_id):
     # questions['correct_options'] = (questions['correct_options'])
     return render_template('edit_quiz.html', quiz_id=quiz_id, questions=questions)
     
+@bp.route('/quiz/delete/<int:quiz_id>', methods=['GET','POST'])
+def delete_quiz(quiz_id):
+    db = get_db()
+    print("Deleting quiz with id:", quiz_id)
+    db.execute('DELETE FROM Quizzes WHERE quiz_id = ?', (quiz_id,))
+    db.execute('DELETE FROM Questions WHERE quiz_id = ?', (quiz_id,))
+    db.execute('DELETE FROM UserResponses WHERE quiz_id = ?', (quiz_id,))
+    db.commit()
+    return redirect(url_for('interface.dashboard'))
+
+@bp.route('/quiz/start/<int:quiz_id>', methods=['GET','POST'])
+def start_quiz(quiz_id):
+    db = get_db()
+    db.execute('UPDATE Quizzes SET start_time = DATETIME("now","localtime") WHERE quiz_id = ?', (quiz_id,))
+    db.commit()
+    return redirect(url_for('interface.dashboard'))

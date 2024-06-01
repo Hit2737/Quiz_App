@@ -1,59 +1,59 @@
 {% extends 'base.html' %}
-{% block title %}Edit Questions{% endblock %}
-{% block content %}
-<div class="container mt-5">
-    <h2>Edit Questions</h2>
-    {% for question in questions %}
-    <form action="{{ url_for('quiz.edit_quiz', quiz_id=quiz_id) }}" method="POST" id="question-form-{{ question['question_id'] }}">
-        <input type="hidden" name="question_id" value="{{ question['question_id'] }}">
-        <div class="form-group">
-            <label for="question">Question {{question['question_id']}}</label>
-            <input type="text" class="form-control" id="question" name="question" value="{{ question['question_text'] }}" required>
-        </div>
-        <div class="time-limit">
-            <p>For automatic question lock and unlock you can add time limit for your question</p>
-            <label for="time-limit">Time Limit: </label>
-            <input type="number" id="hours" name="hours" min="0" max="5" value="{{ question['duration'].split(':')[0] if question['duration'] else '' }}">
-            <label for="hours">hr.</label>
-            <input type="number" id="minutes" name="minutes" min="0" max="59" value="{{ question['duration'].split(':')[1] if question['duration'] else '' }}">
-            <label for="minutes">min.</label>
-            <input type="number" id="seconds" name="seconds" min="0" max="59" value="{{ question['duration'].split(':')[2].split('.')[0] if question['duration'] else '' }}">
-            <label for="seconds">sec.</label>
-        </div>
-        <p>You can also proceed with our manual lock-unlock feature by leaving the time blocks unfilled</p>
-        
-        
-        
-        <button type="button" class="btn btn-secondary mb-3" onclick="addOption({{ question['question_id'] }})">Add Option</button>
-        <div>
-            <button type="submit" class="btn btn-success">Update Question</button>
-        </div>
-    </form>
-    <hr>
-    {% endfor %}
-</div>
-<!-- Bootstrap JS and dependencies -->
-<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script>
-    function addOption(questionId) {
-        let container = $('#options-container-' + questionId);
-        let index = container.children().length;
-        container.append(
-            '<div class="input-group mb-2 option-item">' +
-            '<input type="text" class="form-control" name="options" placeholder="Enter option" required>' +
-            '<div class="input-group-append">' +
-            '<div class="input-group-text">' +
-            '<input type="hidden" name="correct_options_' + index + '" value="off">' +
-            '<input type="checkbox" name="correct_options_' + index + '" value="on">' +
-            '</div>' +
-            '</div>' +
-            '</div>'
-        );
-    }
-</script>
-{% endblock %}
+    {% block title %}Edit Questions{% endblock %}
+    {% block content %}
+    <div class="container mt-5">
+        <h2>Edit Questions</h2>
+        {% for question in questions %}
+        <form action="{{ url_for('quiz.edit_quiz', quiz_id=quiz_id) }}" method="POST" id="question-form-{{ question['question_id'] }}">
+            <input type="hidden" name="question_id" value="{{ question['question_id'] }}">
+            <div class="form-group">
+                <label for="question">Question {{question['question_id']}}</label>
+                <input type="text" class="form-control" id="question" name="question" value="{{ question['question_text'] }}" required>
+            </div>
+            <div class="time-limit">
+                <p>For automatic question lock and unlock you can add time limit for your question</p>
+                <label for="time-limit">Time Limit: </label>
+                <input type="number" id="hours" name="hours" min="0" max="5" value="{{ question['duration'].split(':')[0] if question['duration'] else '' }}">
+                <label for="hours">hr.</label>
+                <input type="number" id="minutes" name="minutes" min="0" max="59" value="{{ question['duration'].split(':')[1] if question['duration'] else '' }}">
+                <label for="minutes">min.</label>
+                <input type="number" id="seconds" name="seconds" min="0" max="59" value="{{ question['duration'].split(':')[2].split('.')[0] if question['duration'] else '' }}">
+                <label for="seconds">sec.</label>
+            </div>
+            <p>You can also proceed with our manual lock-unlock feature by leaving the time blocks unfilled</p>
+            
+            
+            
+            <button type="button" class="btn btn-secondary mb-3" onclick="addOption({{question['question_id']}})">Add Option</button>
+            <div>
+                <button type="submit" class="btn btn-success">Update Question</button>
+            </div>
+        </form>
+        <hr>
+        {% endfor %}
+    </div>
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function addOption(questionId) {
+            let container = $('#options-container-' + questionId);
+            let index = container.children().length;
+            container.append(
+                '<div class="input-group mb-2 option-item">' +
+                '<input type="text" class="form-control" name="options" placeholder="Enter option" required>' +
+                '<div class="input-group-append">' +
+                '<div class="input-group-text">' +
+                '<input type="hidden" name="correct_options_' + index + '" value="off">' +
+                '<input type="checkbox" name="correct_options_' + index + '" value="on">' +
+                '</div>' +
+                '</div>' +
+                '</div>'
+            );
+        }
+    </script>
+    {% endblock %}
 
 
 
