@@ -52,7 +52,10 @@ def add_questions(quiz_id):
         for i in range(len(questions)):
             question = questions[i]
             option_list = options[i].split(',')
-            correct_option_list = correct_options[i].split(',')
+            if(correct_options == []):
+                correct_option_list = []
+            else:
+                correct_option_list = correct_options[i].split(',')
             hour = hours[i]
             minute = minutes[i]
             second = seconds[i]
@@ -110,7 +113,8 @@ def submit_response(quiz_id, question_id):
             (user_id, quiz_id, question_id, selected_options_json)
         )
         db.commit()
-
+    if 'submit_next' in request.form:
+        question_id = int(question_id) + 1
     question_id = int(question_id) + 1
     session['current_question'] = question_id
     session['quiz_id'] = quiz_id
@@ -210,4 +214,19 @@ def start_quiz(quiz_id):
     db = get_db()
     db.execute('UPDATE Quizzes SET start_time = DATETIME("now","localtime") WHERE quiz_id = ?', (quiz_id,))
     db.commit()
-    return redirect(url_for('interface.dashboard'))
+    return redirect(url_for('quiz.lock_unlock_ques', quiz_id=quiz_id))
+
+@bp.route('/quiz/lock_unlock_ques/<int:quiz_id>', methods=['GET','POST'])
+def lock_unlock_ques(quiz_id):
+    db = get_db()
+    questions = db.execute('SELECT * FROM Questions WHERE quiz_id = ?', (quiz_id,)).fetchall()
+    if request.method == 'POST':
+        question_id = request.form['question_id']
+        lock_unlock = db.execute('SELECT * FROM Questions WHERE quiz_id = ? AND question_id = ?', (quiz_id, question_id)).fetchone()['lock']
+        lock_unlock = not lock_unlock
+        print("Lock/Unlock:", lock_unlock)
+        if 'lock_unlock' in request.form:
+            db.execute('UPDATE Questions SET lock = ? WHERE quiz_id = ? AND question_id = ?', (lock_unlock ,quiz_id, question_id))
+            db.commit()
+        return redirect(url_for('quiz.lock_unlock_ques', quiz_id=quiz_id))
+    return render_template('lock_unlock_ques.html', questions=questions, quiz_id=quiz_id)  
