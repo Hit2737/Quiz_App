@@ -12,4 +12,5 @@
     <input type="password" name="password" id="password" required>
     <input type="submit" value="Register">
   </form>
+  <p>Already have an account? <a href="{{ url_for('auth.login') }}">Log In</a></p>
 {% endblock %}
