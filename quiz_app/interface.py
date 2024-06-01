@@ -27,7 +27,7 @@ def dashboard():
             error2 = "You cannot attempt your own quiz"
         elif get_db().execute(
         'SELECT * FROM Quizzes WHERE quiz_id = ? AND start_time != ""', (session['quiz_id'],)).fetchone() is None or str(get_db().execute(
-            'SELECT * FROM Quizzes WHERE quiz_id = ? ', (session['quiz_id'],)).fetchone()['start_time']) > get_db().execute('SELECT CURRENT_TIMESTAMP').fetchone()[0]:
+            'SELECT * FROM Quizzes WHERE quiz_id = ? ', (session['quiz_id'],)).fetchone()['start_time']) > get_db().execute('SELECT DATETIME("now","localtime")').fetchone()[0]:
             error2 = "Quiz has not started yet"
         else:
             error2 = None
@@ -41,7 +41,6 @@ def dashboard():
 @bp.route('/student_interface', methods=('GET', 'POST'), endpoint='student_interface')
 @login_required
 def student_interface():
-    
     quiz = get_db().execute(
         'SELECT * FROM Quizzes WHERE quiz_id = ?', (session['quiz_id'],)
     ).fetchone()
@@ -51,16 +50,27 @@ def student_interface():
     current_question = get_db().execute(
         'SELECT * FROM Questions WHERE quiz_id = ? AND question_id = ?', (quiz['quiz_id'], session['current_question'],)
     ).fetchone()
-    
     if(int(session['current_question']) > ques_count[0]):
         return redirect(url_for('interface.thankyou'))
+    if current_question['duration'] is None:
+        if current_question['lock'] == 1:
+            return redirect(url_for('interface.ques_locked'))
+        else:
+            options = current_question['options']
+            options = json.loads(options)
+            return render_template('student_interface.html' ,quiz=quiz, ques=current_question, ques_count=ques_count[0], options=options, duration=-1)
+    
     options = current_question['options']
     options = json.loads(options)
-        
-    return render_template('student_interface.html' ,quiz=quiz, ques=current_question, ques_count=ques_count[0], options=options)
+    return render_template('student_interface.html' ,quiz=quiz, ques=current_question, ques_count=ques_count[0], options=options, duration=1)
 
+@bp.route('/ques_locked')
+@login_required
+def ques_locked():
+    return render_template('ques_locked.html')
 
 @bp.route('/thankyou')
 @login_required
 def thankyou():
     return render_template('thankyou.html')
+    

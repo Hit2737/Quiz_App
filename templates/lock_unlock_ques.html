@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+    {% block title %}Lock/Unlock Questions{% endblock %}
+
+    {% block content %}
+    <div class="container mt-5">
+        <h2>Lock/Unlock Questions</h2>
+        <div class="all-questions">
+            {% for question in questions %}
+            <div class="question">
+                <h4>Question {{ question['question_id'] }}</h4>
+                <p>{{ question['question_text'] }}</p>
+                <form action="{{ url_for('quiz.lock_unlock_ques', quiz_id=quiz_id) }}" method="POST">
+                    <input type="hidden" name="question_id" value="{{ question['question_id'] }}">
+                    <input type="hidden" name="lock" value="{{ question['lock'] }}">
+                    {% if question['lock'] %}
+                        <p>Question is locked</p>
+                    {% else %}
+                        <p>Question is unlocked</p>
+                    {% endif %}
+                    <button type="submit" name="lock_unlock" class="btn btn-outline-danger">{{ 'Unlock' if question['lock'] else 'Lock' }}</button>
+                </form>
+            
+            </div>
+            {% endfor %}
+            <a href="{{ url_for('interface.dashboard') }}" class="btn btn-outline-primary">Go To Dashboard</a>
+
+        </div>
+        
+    </div>
+    {% endblock %}
