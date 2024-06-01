@@ -119,11 +119,9 @@ def submit_response(quiz_id, question_id):
 @bp.route('/quiz/start_time/<quiz_id>', methods=('GET', 'POST'))
 @login_required
 def start_time(quiz_id):
-    currenttime = get_db().execute('SELECT CURRENT_TIMESTAMP').fetchone()[0]
-    date,time = currenttime.split(' ')
-    y,m,d = date.split('-')
-    h,min,sec = time.split(':')
-    currenttime = y+'-'+m+'-'+d+'T'+h+':'+min
+    currenttime = get_db().execute('SELECT DATETIME("now","localtime")').fetchone()[0]
+    currenttime = currenttime[:-2] + '00'
+    print(currenttime)
     if request.method == 'POST':
         if 'manual' in request.form:
             return redirect(url_for('interface.dashboard'))
@@ -156,16 +154,60 @@ def edit_quiz(quiz_id):
         abort(404)
 
     questions = db.execute('SELECT * FROM Questions WHERE quiz_id = ? ORDER BY question_id', (quiz_id,)).fetchall()
-    print(type(questions))
-    print(questions)
     questions_list = []
     for question in questions:
         question_dict = dict(question)
-        print(question_dict['options'])
-        print(question_dict['correct_options'])
         question_dict['options'] = json.loads(question_dict['options'])
         question_dict['correct_options'] = json.loads(question_dict['correct_options'])
         questions_list.append(question_dict)
-
+    if request.method == "POST":
+        print("POST request received")
+        if 'update' in request.form:
+            print("Updating question")
+            question_id = request.form['question_id']
+            question_text = request.form['question']
+            options = request.form['options']
+            print("Options:", options)    
+            hours = request.form['hours']
+            minutes = request.form['minutes']
+            seconds = request.form['seconds']
+            if not hours and not minutes and not seconds:
+                duration = None
+            else:
+                if not hours:
+                    hours = '00'
+                if not minutes:
+                    minutes = '00'
+                if not seconds:
+                    seconds = '00'
+                duration = hours + ':' + minutes + ':' + seconds + '.000'
+            option_list = options.split(',')
+            print("Options:", option_list)
+            options_json = json.dumps(option_list)
+            db.execute(
+                'UPDATE Questions SET question_text = ?, options = ?, duration = ? WHERE quiz_id = ? AND question_id = ?',
+                (question_text, options_json, duration, quiz_id, question_id)
+            )
+            db.commit()
+            return redirect(url_for('quiz.edit_quiz', quiz_id=quiz_id, questions=questions_list))
     return render_template('edit_quiz.html', quiz_id=quiz_id, questions=questions_list)
+
     
+
+    
+@bp.route('/quiz/delete/<int:quiz_id>', methods=['GET','POST'])
+def delete_quiz(quiz_id):
+    db = get_db()
+    print("Deleting quiz with id:", quiz_id)
+    db.execute('DELETE FROM Quizzes WHERE quiz_id = ?', (quiz_id,))
+    db.execute('DELETE FROM Questions WHERE quiz_id = ?', (quiz_id,))
+    db.execute('DELETE FROM UserResponses WHERE quiz_id = ?', (quiz_id,))
+    db.commit()
+    return redirect(url_for('interface.dashboard'))
+
+@bp.route('/quiz/start/<int:quiz_id>', methods=['GET','POST'])
+def start_quiz(quiz_id):
+    db = get_db()
+    db.execute('UPDATE Quizzes SET start_time = DATETIME("now","localtime") WHERE quiz_id = ?', (quiz_id,))
+    db.commit()
+    return redirect(url_for('interface.dashboard'))
