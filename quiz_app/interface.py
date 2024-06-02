@@ -32,11 +32,15 @@ def dashboard():
         else:
             error2 = None
             flash("Quiz Started")
-            return redirect(url_for('interface.student_interface'))
+            return redirect(url_for('interface.information'))
     if error2 is not None:
         flash(error2)
     return render_template('dashboard.html', Quizzes=Quizzes)
 
+@bp.route('/information', methods=('GET', 'POST'))
+@login_required
+def information():
+    return render_template('information.html')
 
 @bp.route('/student_interface', methods=('GET', 'POST'), endpoint='student_interface')
 @login_required
