@@ -24,10 +24,10 @@
                 <div class="options-container form-group">
                     <label for="options">Options</label>
                     <div class="input-group mb-2">
-                        <input type="text" class="form-control" name="options" placeholder="Enter option" required>
+                        <input type="text" class="form-control" name="options-0" placeholder="Enter option" required>
                         <div class="input-group-append">
                             <div class="input-group-text">
-                                <input type="checkbox" name="correct_options" aria-label="Checkbox for following text input">
+                                <input type="checkbox" name="correct_options-0" aria-label="Checkbox for following text input">
                             </div>
                         </div>
                     </div>
@@ -45,7 +45,23 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script>
     $(document).ready(function() {
+        let questionIndex = 0;
+
+        function updateIndices() {
+            $('.question').each(function(index) {
+                $(this).find('[name^="options"]').each(function() {
+                    let name = $(this).attr('name').split('-')[0];
+                    $(this).attr('name', name + '-' + index);
+                });
+                $(this).find('[name^="correct_options"]').each(function() {
+                    let name = $(this).attr('name').split('-')[0];
+                    $(this).attr('name', name + '-' + index);
+                });
+            });
+        }
+
         $('#add-next-question').click(function() {
+            questionIndex++;
             var questionHtml = '<div class="question">' +
                 '<div class="form-group">' +
                 '<label for="question">Question</label>' +
@@ -65,10 +81,10 @@
                 '<div class="options-container form-group">' +
                 '<label for="options">Options</label>' +
                 '<div class="input-group mb-2">' +
-                '<input type="text" class="form-control" name="options" placeholder="Enter option" required>' +
+                '<input type="text" class="form-control" name="options-' + questionIndex + '" placeholder="Enter option" required>' +
                 '<div class="input-group-append">' +
                 '<div class="input-group-text">' +
-                '<input type="checkbox" name="correct_options" aria-label="Checkbox for following text input">' +
+                '<input type="checkbox" name="correct_options-' + questionIndex + '" aria-label="Checkbox for following text input">' +
                 '</div>' +
                 '</div>' +
                 '</div>' +
@@ -78,16 +94,18 @@
                 '</div>';
 
             $('#questions-container').append(questionHtml);
+            updateIndices();
         });
 
         $(document).on('click', '.add-option', function() {
             var optionsContainer = $(this).siblings('.options-container');
+            var questionIndex = $(this).closest('.question').index();
             optionsContainer.append(
                 '<div class="input-group mb-2">' +
-                '<input type="text" class="form-control" name="options" placeholder="Enter option" required>' +
+                '<input type="text" class="form-control" name="options-' + questionIndex + '" placeholder="Enter option" required>' +
                 '<div class="input-group-append">' +
                 '<div class="input-group-text">' +
-                '<input type="checkbox" name="correct_options" aria-label="Checkbox for following text input">' +
+                '<input type="checkbox" name="correct_options-' + questionIndex + '" aria-label="Checkbox for following text input">' +
                 '</div>' +
                 '</div>' +
                 '</div>'
@@ -96,6 +114,7 @@
 
         $(document).on('click', '.delete-question', function() {
             $(this).closest('.question').remove();
+            updateIndices();
         });
     });
 </script>
