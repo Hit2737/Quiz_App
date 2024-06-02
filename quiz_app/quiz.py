@@ -118,7 +118,12 @@ def submit_response(quiz_id, question_id):
             (user_id, quiz_id, question_id, selected_options_json)
         )
         db.commit()
-    if 'submit_next' in request.form:
+    ques_count = db.execute(
+        'SELECT COUNT(*) FROM Questions WHERE quiz_id = ?', (quiz_id,)
+    ).fetchone()[0]
+    if 'submit' in request.form:
+        question_id = ques_count + 1
+    elif 'submit_next' in request.form:
         question_id = int(question_id) + 1
     question_id = int(question_id) + 1
     session['current_question'] = question_id
@@ -155,6 +160,7 @@ def start_time(quiz_id):
     return render_template('start_time.html', quiz_id=quiz_id, currenttime=currenttime)
 
 @bp.route('/quiz/edit/<int:quiz_id>', methods=['GET', 'POST'])
+@login_required
 def edit_quiz(quiz_id):
     db = get_db()
     quiz_data = db.execute('SELECT * FROM Quizzes WHERE quiz_id = ?', (quiz_id,)).fetchone()
@@ -205,6 +211,7 @@ def edit_quiz(quiz_id):
 
     
 @bp.route('/quiz/delete/<int:quiz_id>', methods=['GET','POST'])
+@login_required
 def delete_quiz(quiz_id):
     db = get_db()
     print("Deleting quiz with id:", quiz_id)
@@ -215,6 +222,7 @@ def delete_quiz(quiz_id):
     return redirect(url_for('interface.dashboard'))
 
 @bp.route('/quiz/start/<int:quiz_id>', methods=['GET','POST'])
+@login_required
 def start_quiz(quiz_id):
     db = get_db()
     db.execute('UPDATE Quizzes SET start_time = DATETIME("now","localtime") WHERE quiz_id = ?', (quiz_id,))
@@ -222,6 +230,7 @@ def start_quiz(quiz_id):
     return redirect(url_for('quiz.lock_unlock_ques', quiz_id=quiz_id))
 
 @bp.route('/quiz/lock_unlock_ques/<int:quiz_id>', methods=['GET','POST'])
+@login_required
 def lock_unlock_ques(quiz_id):
     db = get_db()
     questions = db.execute('SELECT * FROM Questions WHERE quiz_id = ?', (quiz_id,)).fetchall()
@@ -235,3 +244,10 @@ def lock_unlock_ques(quiz_id):
             db.commit()
         return redirect(url_for('quiz.lock_unlock_ques', quiz_id=quiz_id))
     return render_template('lock_unlock_ques.html', questions=questions, quiz_id=quiz_id)  
+
+@bp.route('/quiz/forced_submit_quiz/<int:quiz_id>', methods=['GET','POST'])
+@login_required
+def forced_submit_quiz(quiz_id):
+    db = get_db()
+    db.execute('INSERT INTO UserResponses (user_id, quiz_id, question_id, selected_options) SELECT user_id, quiz_id, question_id, selected_options FROM UserResponses WHERE quiz_id = ?', (quiz_id,))
+    return redirect(url_for('interface.dashboard'))
