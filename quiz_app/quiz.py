@@ -44,18 +44,21 @@ def add_questions(quiz_id):
         abort(404)
     if request.method == 'POST':
         questions = request.form.getlist('question')
-        options = request.form.getlist('options')
-        correct_options = request.form.getlist('correct_options')
         hours = request.form.getlist('hours')
         minutes = request.form.getlist('minutes')
         seconds = request.form.getlist('seconds')
+        print("Questions:", questions)
         for i in range(len(questions)):
             question = questions[i]
-            option_list = options[i].split(',')
-            if(correct_options == []):
-                correct_option_list = []
-            else:
-                correct_option_list = correct_options[i].split(',')
+            option_list = request.form.getlist(f'options-{i}')
+            correct_option_list = request.form.getlist(f'correct_options-{i}')
+
+            print("Form Data:", request.form)  # Print the entire form data for debugging
+            print("Form Data:", request.form.keys)  # Print the entire form data for debugging
+            print("Form Data:", request.form.values)  # Print the entire form data for debugging
+            print("Options:", option_list)  # Print options
+            print("Correct Options:", correct_option_list)
+
             hour = hours[i]
             minute = minutes[i]
             second = seconds[i]
@@ -68,26 +71,28 @@ def add_questions(quiz_id):
                     minute = '00'
                 if not second:
                     second = '00'
-                duration = hour + ':' + minute + ':' + second + '.000'
+                duration = f"{hour}:{minute}:{second}.000"
+
             if not question:
                 flash('Question is required.')
             else:
                 result = db.execute('SELECT MAX(question_id) FROM Questions WHERE quiz_id = ?', (quiz_id,)).fetchone()
                 next_question_id = (result[0] or 0) + 1
-                options_json = json.dumps(option_list)  # Convert the options list to a JSON string
-                correct_indices = [index for index, value in enumerate(correct_option_list) if value == 'on']
-                correct_options_json = json.dumps(correct_indices)
+                options_json = json.dumps(option_list)
+                correct_options_json = json.dumps(correct_option_list)
                 db.execute(
                     'INSERT INTO Questions (question_id, quiz_id, question_text, options, correct_options, duration)'
                     ' VALUES (?, ?, ?, ?, ?, ?)',
                     (next_question_id, quiz_id, question, options_json, correct_options_json, duration)
                 )
                 db.commit()
+
         if 'add_next' in request.form:
             return redirect(url_for('quiz.add_questions', quiz_id=quiz_id))
         else:
             return redirect(url_for('quiz.start_time', quiz_id=quiz_id))
     return render_template('addQues.html', quiz_id=quiz_id)
+
 
 @bp.route('/submit_response/<quiz_id>/<question_id>', methods=['POST'])
 @login_required
