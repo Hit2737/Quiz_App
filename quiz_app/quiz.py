@@ -52,10 +52,10 @@ def add_questions(quiz_id):
             question = questions[i]
             option_list = request.form.getlist(f'options-{i}')
             correct_option_list = request.form.getlist(f'correct_options-{i}')
-
-            print("Form Data:", request.form)  # Print the entire form data for debugging
-            print("Form Data:", request.form.keys)  # Print the entire form data for debugging
-            print("Form Data:", request.form.values)  # Print the entire form data for debugging
+            correct_option_list = [int(option) for option in correct_option_list]
+            # print("Form Data:", request.form)  # Print the entire form data for debugging
+            # print("Form Data:", request.form.keys)  # Print the entire form data for debugging
+            # print("Form Data:", request.form.values)  # Print the entire form data for debugging
             print("Options:", option_list)  # Print options
             print("Correct Options:", correct_option_list)
 
@@ -154,7 +154,7 @@ def start_time(quiz_id):
         
     return render_template('start_time.html', quiz_id=quiz_id, currenttime=currenttime)
 
-@bp.route('/quiz/edit/<int:quiz_id>', methods=['GET', 'POST'])
+@bp.route('/quiz/edit_quiz/<int:quiz_id>', methods=['GET', 'POST'])
 def edit_quiz(quiz_id):
     db = get_db()
     quiz_data = db.execute('SELECT * FROM Quizzes WHERE quiz_id = ?', (quiz_id,)).fetchone()
@@ -169,36 +169,52 @@ def edit_quiz(quiz_id):
         question_dict['options'] = json.loads(question_dict['options'])
         question_dict['correct_options'] = json.loads(question_dict['correct_options'])
         questions_list.append(question_dict)
-    if request.method == "POST":
-        print("POST request received")
-        if 'update' in request.form:
-            print("Updating question")
-            question_id = request.form['question_id']
-            question_text = request.form['question']
-            options = request.form['options']
-            print("Options:", options)    
-            hours = request.form['hours']
-            minutes = request.form['minutes']
-            seconds = request.form['seconds']
-            if not hours and not minutes and not seconds:
+    if request.method == 'POST':
+        delete_quiz_questions(quiz_id)
+        questions = request.form.getlist('question')
+        hours = request.form.getlist('hours')
+        minutes = request.form.getlist('minutes')
+        seconds = request.form.getlist('seconds')
+        print("Questions:", questions)
+        for i in range(len(questions)):
+            question = questions[i]
+            option_list = request.form.getlist(f'options-{i}')
+            correct_option_list = request.form.getlist(f'correct_options-{i}')
+            correct_option_list = [int(option) for option in correct_option_list]
+            # print("Form Data:", request.form)  # Print the entire form data for debugging
+            # print("Form Data:", request.form.keys)  # Print the entire form data for debugging
+            # print("Form Data:", request.form.values)  # Print the entire form data for debugging
+            print("Options:", option_list)  # Print options
+            print("Correct Options:", correct_option_list)
+
+            hour = hours[i]
+            minute = minutes[i]
+            second = seconds[i]
+            if not hour and not minute and not second:
                 duration = None
             else:
-                if not hours:
-                    hours = '00'
-                if not minutes:
-                    minutes = '00'
-                if not seconds:
-                    seconds = '00'
-                duration = hours + ':' + minutes + ':' + seconds + '.000'
-            option_list = options.split(',')
-            print("Options:", option_list)
-            options_json = json.dumps(option_list)
-            db.execute(
-                'UPDATE Questions SET question_text = ?, options = ?, duration = ? WHERE quiz_id = ? AND question_id = ?',
-                (question_text, options_json, duration, quiz_id, question_id)
-            )
-            db.commit()
-            return redirect(url_for('quiz.edit_quiz', quiz_id=quiz_id, questions=questions_list))
+                if not hour:
+                    hour = '00'
+                if not minute:
+                    minute = '00'
+                if not second:
+                    second = '00'
+                duration = f"{hour}:{minute}:{second}.000"
+
+            if not question:
+                flash('Question is required.')
+            else:
+                result = db.execute('SELECT MAX(question_id) FROM Questions WHERE quiz_id = ?', (quiz_id,)).fetchone()
+                next_question_id = (result[0] or 0) + 1
+                options_json = json.dumps(option_list)
+                correct_options_json = json.dumps(correct_option_list)
+                db.execute(
+                    'INSERT INTO Questions (question_id, quiz_id, question_text, options, correct_options, duration)'
+                    ' VALUES (?, ?, ?, ?, ?, ?)',
+                    (next_question_id, quiz_id, question, options_json, correct_options_json, duration)
+                )
+                db.commit()
+        return redirect(url_for('interface.dashboard'))
     return render_template('edit_quiz.html', quiz_id=quiz_id, questions=questions_list)
 
     
@@ -213,6 +229,12 @@ def delete_quiz(quiz_id):
     db.execute('DELETE FROM UserResponses WHERE quiz_id = ?', (quiz_id,))
     db.commit()
     return redirect(url_for('interface.dashboard'))
+
+def delete_quiz_questions(quiz_id):
+    db = get_db()
+    db.execute('DELETE FROM Questions WHERE quiz_id = ?', (quiz_id,))
+    db.commit()
+
 
 @bp.route('/quiz/start/<int:quiz_id>', methods=['GET','POST'])
 def start_quiz(quiz_id):
