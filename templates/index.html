@@ -6,7 +6,8 @@
     </h1>
     <h2>You have to Login/Register first</h2>
     <div>
-        <a href="{{url_for('auth.login')}}" type="button" class="btn btn-outline-success">Login</a>
+        <a href="{{url_for('auth.login_admin')}}" type="button" class="btn btn-outline-success">Login as Admin</a>
+        <a href="{{url_for('auth.login_student')}}" type="button" class="btn btn-outline-success">Login as Student</a>
         <a href="{{url_for('auth.register')}}" type="button" class="btn btn-outline-success">Register</a>
     </div>
     {% endblock %}

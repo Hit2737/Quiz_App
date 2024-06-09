@@ -10,12 +10,18 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 @bp.before_app_request
 def load_logged_in_user():
     user_id = session.get('user_id')
-
+    admin_id = session.get('admin_id')
+    if admin_id is None:
+        g.admin = None
+    else:
+        g.admin = get_db().execute(
+            'SELECT * FROM Admins WHERE admin_id = ?', (admin_id,)
+        ).fetchone()
     if user_id is None:
         g.user = None
     else:
         g.user = get_db().execute(
-            'SELECT * FROM user WHERE id = ?', (user_id,)
+            'SELECT * FROM Users WHERE id = ?', (user_id,)
         ).fetchone()
     
 @bp.route('/logout')
@@ -27,10 +33,17 @@ def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
         if g.user is None:
-            return redirect(url_for('auth.login'))
+            return redirect(url_for('auth.login_student'))
         return view(**kwargs)
     return wrapped_view
 
+def admin_login_required(view):
+    @functools.wraps(view)
+    def wrapped_view(**kwargs):
+        if g.admin is None:
+            return redirect(url_for('auth.login_admin'))
+        return view(**kwargs)
+    return wrapped_view
 
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
@@ -51,29 +64,27 @@ def register():
         if error is None:
             try:
                 db.execute(
-                    "INSERT INTO user (username, password, email_id) VALUES (?, ?, ?)",
+                    "INSERT INTO Users (username, password, email_id) VALUES (?, ?, ?)",
                     (username, generate_password_hash(password), email_id),
                 )
                 db.commit()
             except db.IntegrityError:
                 error = f"User {username} is already registered."
-            else:
-                return redirect(url_for("auth.login"))
-
+        else:
+            return redirect(url_for("auth.login_student"))
         flash(error)
-
     return render_template('auth/register.html')
 
 
-@bp.route('/login', methods=('GET', 'POST'))
-def login():
+@bp.route('/login_student', methods=('GET', 'POST'))
+def login_student():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
         db = get_db()
         error = None
         user = db.execute(
-            'SELECT * FROM user WHERE email_id = ?', (email,)
+            'SELECT * FROM Users WHERE email_id = ?', (email,)
         ).fetchone()
         if user is None:
             error = 'Please check you email.'
@@ -87,4 +98,29 @@ def login():
 
         flash(error)
 
-    return render_template('auth/login.html')
+    return render_template('auth/login_student.html')
+
+@bp.route('/login_admin', methods=('GET', 'POST'))
+def login_admin():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        db = get_db()
+        error = None
+        user = db.execute(
+            'SELECT * FROM Admins WHERE email_id = ?', (email,)
+        ).fetchone()
+        if user is None:
+            error = 'Please check you email.'
+        elif not check_password_hash(user['password'], password):
+            error = 'Incorrect password.'
+
+        if error is None:
+            session.clear()
+            session['admin_id'] = user['admin_id']
+            return redirect(url_for('interface.admin_dashboard'))
+
+        flash(error)
+
+    return render_template('auth/login_admin.html')
+

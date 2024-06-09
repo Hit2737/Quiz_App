@@ -2,9 +2,18 @@ from flask import(
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 from quiz_app.db import get_db
-from quiz_app.auth import login_required
+from quiz_app.auth import login_required, admin_login_required
 import json
 bp = Blueprint('interface', __name__, url_prefix='/')
+
+@bp.route('/admin_dashboard', methods=('GET', 'POST'))
+@admin_login_required
+def admin_dashboard():
+    Quizzes = get_db().execute(
+        'SELECT * FROM Quizzes WHERE admin_id = ?', (g.admin['admin_id'],)
+    ).fetchall()
+    return render_template('admin_dashboard.html', Quizzes=Quizzes)
+
 
 @bp.route('/dashboard', methods=('GET', 'POST'))
 @login_required
@@ -23,20 +32,21 @@ def dashboard():
         'SELECT * FROM Quizzes WHERE quiz_id = ?', (session['quiz_id'],)).fetchone() is None:
             error2 = "Quiz not found"
         elif get_db().execute(
-        'SELECT * FROM Quizzes WHERE quiz_id = ? AND admin_id = ?', (session['quiz_id'], g.user['id'],)).fetchone() is not None:
-            error2 = "You cannot attempt your own quiz"
-        elif get_db().execute(
         'SELECT * FROM Quizzes WHERE quiz_id = ? AND start_time != ""', (session['quiz_id'],)).fetchone() is None or str(get_db().execute(
             'SELECT * FROM Quizzes WHERE quiz_id = ? ', (session['quiz_id'],)).fetchone()['start_time']) > get_db().execute('SELECT DATETIME("now","localtime")').fetchone()[0]:
             error2 = "Quiz has not started yet"
         else:
             error2 = None
             flash("Quiz Started")
-            return redirect(url_for('interface.student_interface'))
+            return redirect(url_for('interface.information'))
     if error2 is not None:
         flash(error2)
     return render_template('dashboard.html', Quizzes=Quizzes)
 
+@bp.route('/information', methods=('GET', 'POST'))
+@login_required
+def information():
+    return render_template('information.html')
 
 @bp.route('/student_interface', methods=('GET', 'POST'), endpoint='student_interface')
 @login_required
