@@ -128,7 +128,7 @@ def submit_response(quiz_id, question_id):
     question_id = int(question_id) + 1
     session['current_question'] = question_id
     session['quiz_id'] = quiz_id
-    return redirect(url_for('interface.student_interface'))
+    return redirect(url_for('interface.quiz_interface'))
 
 @bp.route('/quiz/start_time/<quiz_id>', methods=('GET', 'POST'))
 @admin_login_required

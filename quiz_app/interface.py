@@ -18,39 +18,39 @@ def admin_dashboard():
 @bp.route('/dashboard', methods=('GET', 'POST'))
 @login_required
 def dashboard():
-    Quizzes = get_db().execute(
-        'SELECT * FROM Quizzes'
-    ).fetchall()
-    error2 = None
     if(request.method == 'POST'):
         session['current_question'] = 1
         session['quiz_id'] = request.form['quiz_code']
+        # Checking if user has already attempted the quiz
         if get_db().execute(
         'SELECT * FROM UserResponses WHERE user_id = ? AND quiz_id = ?', (g.user['id'], session['quiz_id'],)).fetchone():
             error2 = "You have already attempted this quiz"
+        # Checking if quiz_id is present in the database
         elif get_db().execute(
         'SELECT * FROM Quizzes WHERE quiz_id = ?', (session['quiz_id'],)).fetchone() is None:
             error2 = "Quiz not found"
+        # Checking if the quiz is started or not
         elif get_db().execute(
-        'SELECT * FROM Quizzes WHERE quiz_id = ? AND start_time != ""', (session['quiz_id'],)).fetchone() is None or str(get_db().execute(
-            'SELECT * FROM Quizzes WHERE quiz_id = ? ', (session['quiz_id'],)).fetchone()['start_time']) > get_db().execute('SELECT DATETIME("now","localtime")').fetchone()[0]:
+        'SELECT * FROM Quizzes WHERE quiz_id = ? AND start_time != ""', (session['quiz_id'],)).fetchone() is None or str(get_db().execute('SELECT * FROM Quizzes WHERE quiz_id = ? ', (session['quiz_id'],)).fetchone()['start_time']) > get_db().execute('SELECT DATETIME("now","localtime")').fetchone()[0]:
             error2 = "Quiz has not started yet"
+        
         else:
             error2 = None
             flash("Quiz Started")
             return redirect(url_for('interface.information'))
+        
     if error2 is not None:
         flash(error2)
-    return render_template('dashboard.html', Quizzes=Quizzes)
+    return render_template('dashboard.html')
 
-@bp.route('/information', methods=('GET', 'POST'))
+@bp.route('/information')
 @login_required
 def information():
     return render_template('information.html')
 
-@bp.route('/student_interface', methods=('GET', 'POST'), endpoint='student_interface')
+@bp.route('/quiz_interface', methods=('GET', 'POST'))
 @login_required
-def student_interface():
+def quiz_interface():
     quiz = get_db().execute(
         'SELECT * FROM Quizzes WHERE quiz_id = ?', (session['quiz_id'],)
     ).fetchone()
@@ -68,11 +68,11 @@ def student_interface():
         else:
             options = current_question['options']
             options = json.loads(options)
-            return render_template('student_interface.html' ,quiz=quiz, ques=current_question, ques_count=ques_count[0], options=options, duration=-1)
+            return render_template('quiz_interface.html' ,quiz=quiz, ques=current_question, ques_count=ques_count[0], options=options, duration=-1)
     
     options = current_question['options']
     options = json.loads(options)
-    return render_template('student_interface.html' ,quiz=quiz, ques=current_question, ques_count=ques_count[0], options=options, duration=1)
+    return render_template('quiz_interface.html' ,quiz=quiz, ques=current_question, ques_count=ques_count[0], options=options, duration=1)
 
 @bp.route('/ques_locked')
 @login_required
