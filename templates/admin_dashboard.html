@@ -1,29 +1,16 @@
 {% extends 'base.html' %}
     {% block title %}Dashboard{% endblock %}
     {% block content %}
-    <h1>Welcome {{g.user['username']}}</h1>
-    <!-- <h2>Active Quizzes:</h2>
-    <div class="active_quizzes">
-        <ul>
-            {% for quiz in Quizzes %}
-                <li>{{quiz['quiz_name']}}</li>
-            {% endfor %}
-        </ul>
-    </div>
-    <h2>Want to give quiz, Enter quiz code:</h2> -->
-    <form method="post">
-        <label for="quiz_code">Quiz Code:</label>
-        <input type="text" name="quiz_code" id="quiz_code" required>
-        <input type="submit" value="Start Quiz" class="btn btn-outline-primary">
-    </form>
-    <!-- <h2>Create a new quiz:</h2>
-    <a href="{{url_for('quiz.create')}}" type="button" class="btn btn-outline-success">Create Quiz</a> -->
+    <h1>Welcome {{g.admin['username']}}</h1>
 
-    <!-- <h2>Your Quizzes:</h2>
+    <h2>Create a new quiz:</h2>
+    <a href="{{url_for('quiz.create')}}" type="button" class="btn btn-outline-success">Create Quiz</a>
+
+    <h2>Your Quizzes:</h2>
     <div class="your_quizzes">
         <ul>
             {% for quiz in Quizzes %}
-                {% if quiz['admin_id'] == g.user['id'] %}
+                {% if quiz['admin_id'] == g.admin['admin_id'] %}
                     <li>{{quiz['quiz_name']}}</li>
                     <a href="{{url_for('quiz.edit_quiz',quiz_id=quiz['quiz_id'])}}" type="button" class="btn btn-outline-success">Edit Quiz</a>
                     <a href="{{url_for('quiz.delete_quiz',quiz_id=quiz['quiz_id'])}}" type="button" class="btn btn-outline-danger">Delete Quiz</a>
@@ -31,7 +18,7 @@
                 {% endif %}
             {% endfor %}
         </ul>
-    </div> -->
+    </div>
 
     <h4>Want to logout?</h4>
     <a href="{{url_for('auth.logout')}}" type="button" class="btn btn-outline-danger" style="bottom: 20px;">Logout</a>

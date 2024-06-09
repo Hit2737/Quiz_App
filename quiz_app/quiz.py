@@ -2,14 +2,14 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, url_for, session
 )
 from werkzeug.exceptions import abort
-from quiz_app.auth import login_required
+from quiz_app.auth import login_required, admin_login_required
 from quiz_app.db import get_db
 import json
 
 bp = Blueprint('quiz', __name__)
 
 @bp.route('/quiz/create', methods=('GET', 'POST'))
-@login_required
+@admin_login_required
 def create():
     if request.method == 'POST':
         quiz_id = request.form['quiz_id']
@@ -28,7 +28,7 @@ def create():
             db.execute(
                 'INSERT INTO Quizzes (quiz_id, quiz_name, admin_id)'
                 ' VALUES (?, ?, ?)',
-                (quiz_id, quiz_name, int(g.user['id']))
+                (quiz_id, quiz_name, int(g.admin['admin_id']))
             )
             db.commit()
             return redirect(url_for('quiz.add_questions',quiz_id=quiz_id))
@@ -36,11 +36,11 @@ def create():
     return render_template('create_quiz.html')
 
 @bp.route('/add-questions/<quiz_id>', methods=('GET', 'POST'))
-@login_required
+@admin_login_required
 def add_questions(quiz_id):
     db = get_db()
     quiz_data = db.execute('SELECT * FROM Quizzes WHERE quiz_id = ?', (quiz_id,)).fetchone()
-    if (quiz_data is None) or (quiz_data['admin_id'] != g.user['id']):
+    if (quiz_data is None) or (quiz_data['admin_id'] != g.admin['admin_id']):
         abort(404)
     if request.method == 'POST':
         questions = request.form.getlist('question')
@@ -113,9 +113,9 @@ def submit_response(quiz_id, question_id):
         return redirect(url_for('interface.dashboard'))
     else:
         db.execute(
-            'INSERT INTO UserResponses (user_id, quiz_id, question_id, selected_options)'
-            ' VALUES (?, ?, ?, ?)',
-            (user_id, quiz_id, question_id, selected_options_json)
+            'INSERT INTO UserResponses (user_id, quiz_id, question_id, selected_options, time_stamp)'
+            ' VALUES (?, ?, ?, ?, ?)',
+            (user_id, quiz_id, question_id, selected_options_json, 'DATETIME("now","localtime")')
         )
         db.commit()
     ques_count = db.execute(
@@ -131,14 +131,14 @@ def submit_response(quiz_id, question_id):
     return redirect(url_for('interface.student_interface'))
 
 @bp.route('/quiz/start_time/<quiz_id>', methods=('GET', 'POST'))
-@login_required
+@admin_login_required
 def start_time(quiz_id):
     currenttime = get_db().execute('SELECT DATETIME("now","localtime")').fetchone()[0]
     currenttime = currenttime[:-2] + '00'
     print(currenttime)
     if request.method == 'POST':
         if 'manual' in request.form:
-            return redirect(url_for('interface.dashboard'))
+            return redirect(url_for('interface.admin_dashboard'))
         start_datetime = request.form['start_datetime']
         date,time = start_datetime.split('T')
         start_datetime = date + ' ' + time + ':00.000'  
@@ -155,12 +155,12 @@ def start_time(quiz_id):
                 (start_datetime, quiz_id)
             )
             db.commit()
-            return redirect(url_for('interface.dashboard'))
+            return redirect(url_for('interface.admin_dashboard'))
         
     return render_template('start_time.html', quiz_id=quiz_id, currenttime=currenttime)
 
 @bp.route('/quiz/edit/<int:quiz_id>', methods=['GET', 'POST'])
-@login_required
+@admin_login_required
 def edit_quiz(quiz_id):
     db = get_db()
     quiz_data = db.execute('SELECT * FROM Quizzes WHERE quiz_id = ?', (quiz_id,)).fetchone()
@@ -211,7 +211,7 @@ def edit_quiz(quiz_id):
 
     
 @bp.route('/quiz/delete/<int:quiz_id>', methods=['GET','POST'])
-@login_required
+@admin_login_required
 def delete_quiz(quiz_id):
     db = get_db()
     print("Deleting quiz with id:", quiz_id)
@@ -219,10 +219,10 @@ def delete_quiz(quiz_id):
     db.execute('DELETE FROM Questions WHERE quiz_id = ?', (quiz_id,))
     db.execute('DELETE FROM UserResponses WHERE quiz_id = ?', (quiz_id,))
     db.commit()
-    return redirect(url_for('interface.dashboard'))
+    return redirect(url_for('interface.admin_dashboard'))
 
 @bp.route('/quiz/start/<int:quiz_id>', methods=['GET','POST'])
-@login_required
+@admin_login_required
 def start_quiz(quiz_id):
     db = get_db()
     db.execute('UPDATE Quizzes SET start_time = DATETIME("now","localtime") WHERE quiz_id = ?', (quiz_id,))
@@ -230,7 +230,7 @@ def start_quiz(quiz_id):
     return redirect(url_for('quiz.lock_unlock_ques', quiz_id=quiz_id))
 
 @bp.route('/quiz/lock_unlock_ques/<int:quiz_id>', methods=['GET','POST'])
-@login_required
+@admin_login_required
 def lock_unlock_ques(quiz_id):
     db = get_db()
     questions = db.execute('SELECT * FROM Questions WHERE quiz_id = ?', (quiz_id,)).fetchall()
