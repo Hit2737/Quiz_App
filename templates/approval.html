@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% block title %}Approval Page{% endblock %}
+{% block inhead %}
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .quiz-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            position: relative;
+            background-color: #ffffff;
+        }
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .error {
+            color: red;
+            list-style-type: none;
+            padding: 0;
+            margin-top: 10px;
+        }
+        .footer {
+            margin-top: 20px;
+            text-align: left;
+        }
+        .approve-button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        .approve-button.approved {
+            background-color: #4CAF50;
+        }
+        .approve-button:hover {
+            background-color: #0056b3;
+        }
+        .next-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        .next-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+    <script>
+        function toggleApproval(event, name) {
+            event.preventDefault();
+            const button = event.target;
+            button.classList.toggle('approved');
+            const approvedNames = document.querySelectorAll('.approve-button.approved');
+            if (approvedNames.length < 3 || approvedNames.length > 10) {
+                document.getElementById('error-message').innerText = approvedNames.length < 3
+                    ? 'You must select at least 3 users.'
+                    : 'You can select at most 10 users.';
+            } else {
+                document.getElementById('error-message').innerText = '';
+            }
+        }
+
+        function validateForm(event) {
+            const approvedNames = document.querySelectorAll('.approve-button.approved');
+            if (approvedNames.length < 3 || approvedNames.length > 10) {
+                event.preventDefault();
+                const errorList = document.querySelector('.error');
+                errorList.innerHTML = '';
+                if (approvedNames.length < 3) {
+                    errorList.innerHTML += '<li>You must approve at least 3 users.</li>';
+                }
+                if (approvedNames.length > 10) {
+                    errorList.innerHTML += '<li>You can approve at most 10 users.</li>';
+                }
+            } else {
+                const form = document.getElementById('approval-form');
+                const approved = Array.from(approvedNames).map(btn => btn.getAttribute('data-name'));
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'approved_users';
+                hiddenInput.value = JSON.stringify(approved);
+                form.appendChild(hiddenInput);
+            }
+        }
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="quiz-container">
+        <h1>Approval Page</h1>
+        <form id="approval-form" method="POST" action="/submit" onsubmit="validateForm(event)">
+            <h2>Select users:</h2>
+            <!--
+            <div class="button-group">
+                {% for name in names %}
+                <div>
+                    <button class="approve-button" data-name="{{ name }}" onclick="toggleApproval(event, '{{ name }}')">{{ name }}</button>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="footer">
+                <button type="submit" class="next-button">Next</button>
+            </div>
+        -->
+        <div class="button-group">
+            <div>
+                <button class="approve-button" data-name="Alice" onclick="toggleApproval(event, 'Alice')">Alice</button>
+            </div>
+            <div>
+                <button class="approve-button" data-name="Bob" onclick="toggleApproval(event, 'Bob')">Bob</button>
+            </div>
+            <div>
+                <button class="approve-button" data-name="Charlie" onclick="toggleApproval(event, 'Charlie')">Charlie</button>
+            </div>
+            <div>
+                <button class="approve-button" data-name="David" onclick="toggleApproval(event, 'David')">David</button>
+            </div>
+            <div>
+                <button class="approve-button" data-name="Eve" onclick="toggleApproval(event, 'Eve')">Eve</button>
+            </div>
+            <div>
+                <button class="approve-button" data-name="Frank" onclick="toggleApproval(event, 'Frank')">Frank</button>
+            </div>
+            <div>
+                <button class="approve-button" data-name="Grace" onclick="toggleApproval(event, 'Grace')">Grace</button>
+            </div>
+            <div>
+                <button class="approve-button" data-name="Hank" onclick="toggleApproval(event, 'Hank')">Hank</button>
+            </div>
+            <div>
+                <button class="approve-button" data-name="Ivy" onclick="toggleApproval(event, 'Ivy')">Ivy</button>
+            </div>
+            <div>
+                <button class="approve-button" data-name="Jack" onclick="toggleApproval(event, 'Jack')">Jack</button>
+            </div>
+            <div>
+                <button class="approve-button" data-name="Karen" onclick="toggleApproval(event, 'Karen')">Karen</button>
+            </div>
+            <div>
+                <button class="approve-button" data-name="Liam" onclick="toggleApproval(event, 'Liam')">Liam</button>
+            </div>
+        </div>
+        </form>
+    </div>
+{% endblock %}
