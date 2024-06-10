@@ -17,7 +17,7 @@
             {{ques.question_text}}
         </div>
         <div style="margin-top: 40px;"></div>
-        <form method="post" action="{{ url_for('quiz.submit_response',quiz_id=quiz.quiz_id, question_id=ques['question_id'])}}" >
+        <form method="post" action="{{ url_for('quiz.user_response',quiz_id=quiz.quiz_id, question_id=ques['question_id'])}}" >
             <ul class="options">
                 {% for option in options %}
                 <li>

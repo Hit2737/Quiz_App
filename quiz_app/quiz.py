@@ -41,82 +41,55 @@ def create():
 def add_questions():
     db = get_db()
     quiz_id = session.get('quiz_id')
-    if not quiz_id:
-        # Handle the case where quiz_id is not in session
-        flash('Quiz ID is missing!', 'error')
-        return redirect(url_for('quiz.dashboard'))
 
     quiz_data = db.execute('SELECT * FROM Quizzes WHERE quiz_id = ?', (quiz_id,)).fetchone()
-    
+    # print(request.form)
     if request.method == 'POST':
-        print("POST request received")
-        print(request.form)
-        
-        # Process the form data
-        questions = []
-        for key in request.form:
-            print(f"{key}: {request.form[key]}")
-            if key.startswith('question-'):
-                questions.append({
-                    'question': request.form[key],
-                    'type': request.form.get(f'ques_type-{key.split("-")[1]}'),
-                    'time_limit': {
-                        'hours': request.form.get(f'hours-{key.split("-")[1]}'),
-                        'minutes': request.form.get(f'minutes-{key.split("-")[1]}'),
-                        'seconds': request.form.get(f'seconds-{key.split("-")[1]}')
-                    },
-                    'options': [
-                        {
-                            'text': request.form.get(f'option-{key.split("-")[1]}-{i+1}'),
-                            'correct': request.form.get(f'correct-{key.split("-")[1]}-{i+1}') == 'on'
-                        } for i in range(len([k for k in request.form if k.startswith(f'option-{key.split("-")[1]}')]))
-                    ] if request.form.get(f'ques_type-{key.split("-")[1]}') == 'MCQ' else [],
-                    'answer': request.form.get(f'answer-{key.split("-")[1]}') if request.form.get(f'ques_type-{key.split("-")[1]}') == 'Text' else None
-                })
-        
-        print("Extracted questions:", questions)
-        
-        # Here you can save the questions to the database
-        
-        flash('Questions added successfully!', 'success')
+        questions = request.form.getlist('question')
+        ques_types = request.form.getlist('ques_type')
+        text_answers = request.form.getlist('answer')
+        for i in range(len(questions)):
+            question = questions[i]
+            ques_type = ques_types[i]
+            text_answer = text_answers[i]
+            options = request.form.getlist('option-' + str(i+1))
+            correct_options = request.form.getlist('correct-' + str(i+1))
+
+            db.execute(
+                'INSERT INTO Questions (quiz_id, question_id, question_text, question_type)'
+                ' VALUES (?, ?, ?, ?)',
+                (quiz_id, i+1, question, ques_type)
+            )
+            if ques_type == 'MCQ':
+                for j in range(len(options)):
+                    if str(j+1) in correct_options:
+                        db.execute(
+                            'INSERT INTO Options (quiz_id, question_id, option_id, option_text, correct)'
+                            'VALUES (?, ?, ?, ?, ?)',
+                            (quiz_id, i+1, j+1, options[j], 1)
+                        )
+                    else:
+                        db.execute(
+                            'INSERT INTO Options (quiz_id, question_id, option_id, option_text, correct)'
+                            'VALUES (?, ?, ?, ?, ?)',
+                            (quiz_id, i+1, j+1, options[j], 0)
+                        )
+            elif ques_type == 'Text':
+                db.execute(
+                    'INSERT INTO Options (quiz_id, question_id, option_id, option_text, correct)'
+                    'VALUES (?, ?, ?, ?, ?)',
+                    (quiz_id, i+1, 1, text_answer, 1)
+                )
+        db.commit()
+        return redirect(url_for('interface.admin_dashboard'))
     
     return render_template('add_ques.html', quiz_id=quiz_id, quiz_data=quiz_data)
 
-
-
-@bp.route('/submit_response/<quiz_id>/<question_id>', methods=['POST'])
+@bp.route('/user_response/<quiz_id>/<question_id>', methods=['POST'])
 @login_required
-def submit_response(quiz_id, question_id):
+def user_response(quiz_id, question_id):
     db = get_db()
-    user_id = g.user['id']
-    selected_options = request.form.getlist('selected_option')
-    print("Form Data:", request.form)  # Print the entire form data for debugging
-    print("Selected Options:", selected_options)  # Print selected options
-    selected_options_indices = [int(option) for option in selected_options] 
-    selected_options_json = json.dumps(selected_options_indices)  # Convert the list to a JSON string
-    print(selected_options_json)
-    #checking if user has already attempted the question
-    if db.execute(
-        'SELECT * FROM UserResponses WHERE user_id = ? AND quiz_id = ? AND question_id = ?',
-        (user_id, quiz_id, question_id)
-    ).fetchone():
-        return redirect(url_for('interface.dashboard'))
-    else:
-        db.execute(
-            'INSERT INTO UserResponses (user_id, quiz_id, question_id, selected_options, time_stamp)'
-            ' VALUES (?, ?, ?, ?, ?)', (user_id, quiz_id, question_id, selected_options_json, db.execute('SELECT DATETIME("now","localtime")').fetchone()[0])
-        )
-        db.commit()
-    ques_count = db.execute(
-        'SELECT COUNT(*) FROM Questions WHERE quiz_id = ?', (quiz_id,)
-    ).fetchone()[0]
-    if 'submit' in request.form:
-        question_id = ques_count + 1
-    elif 'submit_next' in request.form:
-        question_id = int(question_id) + 1
-    question_id = int(question_id) + 1
-    session['current_question'] = question_id
-    session['quiz_id'] = quiz_id
+    
     return redirect(url_for('interface.quiz_interface'))
 
 @bp.route('/quiz/start_time/<quiz_id>', methods=('GET', 'POST'))

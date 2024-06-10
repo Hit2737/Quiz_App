@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS Quizzes(
 CREATE TABLE IF NOT EXISTS Questions(
     question_id INTEGER NOT NULL,
     quiz_id TEXT NOT NULL,
+    question_type TEXT NOT NULL,
     question_text TEXT NOT NULL,
     lock BOOLEAN DEFAULT TRUE,
     duration TEXT,

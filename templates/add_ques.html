@@ -2,9 +2,9 @@
 {% block title %}Add Questions{% endblock %}
 {% block content %}
 <div class="container">
+    <h1>Add Questions to your Quiz {{ quiz_id }}</h1>
     <form action="{{ url_for('quiz.add_questions', quiz_id=quiz_id) }}" method="POST" id="question-form">
-        <h1>Add Questions to your Quiz {{ quiz_id }}</h1>
-        <div class="ques_container" id="ques-1">
+        <div class="ques_container">
             <h2>Question: 1</h2>
             <div class="question_type">
                 <label for="ques_type">Question Type:</label>
@@ -31,17 +31,12 @@
                 <div class="options_container" id="options_container">
                     <label for="options">Options:</label>
                     <div id="options-list">
-                        <div class="option-container">
-                            1.<input type="text" name="option-1-1" required>
-                            <input type="checkbox" name="correct-1" value="1">
-                            <button type="button" onclick="removeOption(this)">Remove</button>
-                        </div>
                     </div>
                     <button type="button" onclick="addOption(this)">Add Option</button>
                 </div>
                 <div class="answer_text" id="answer_text">
                     <label for="answer">Answer:</label>
-                    <input type="text" name="answer" required>
+                    <input type="text" name="answer" value="Answer" required>
                 </div>
             </div>
             <button type="button" onclick="deleteQuestion(this)">Delete Question</button>
@@ -74,7 +69,7 @@
             const optionContainer = document.createElement('div');
             optionContainer.className = 'option-container';
             optionContainer.innerHTML = `
-                ${optionCount}.<input type="text" name="option-${questionNumber}-${optionCount}" required>
+                ${optionCount}.<input type="text" name="option-${questionNumber}" required>
                 <input type="checkbox" name="correct-${questionNumber}" value="${optionCount}">
                 <button type="button" onclick="removeOption(this)">Remove</button>`;
             optionsList.appendChild(optionContainer);
@@ -123,17 +118,12 @@
                     <div class="options_container" id="options_container">
                         <label for="options">Options:</label>
                         <div id="options-list">
-                            <div class="option-container">
-                                1.<input type="text" name="option-${questionCount}-1" required>
-                                <input type="checkbox" name="correct-${questionCount}" value="1">
-                                <button type="button" onclick="removeOption(this)">Remove</button>
-                            </div>
                         </div>
                         <button type="button" onclick="addOption(this)">Add Option</button>
                     </div>
                     <div class="answer_text" id="answer_text">
                         <label for="answer">Answer:</label>
-                        <input type="text" name="answer" required>
+                        <input type="text" name="answer" value="Answer" required>
                     </div>
                 </div>
                 <button type="button" onclick="deleteQuestion(this)">Delete Question</button>`;
@@ -161,9 +151,9 @@
             const optionContainers = optionsList.querySelectorAll('.option-container');
             optionContainers.forEach((container, index) => {
                 const optionNumber = index + 1;
-                container.querySelector('input[type="text"]').name = `option-${questionNumber}-${optionNumber}`;
+                container.querySelector('input[type="text"]').name = `option-${questionNumber}`;
                 container.querySelector('input[type="checkbox"]').name = `correct-${questionNumber}`;
-                container.childNodes[0].textContent = `${optionNumber}.`;
+                container.childNodes[0].textContent = `${optionNumber}`;
             });
         }
     </script>
