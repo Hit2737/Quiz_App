@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS Questions(
     question_text TEXT NOT NULL,
     lock BOOLEAN DEFAULT TRUE,
     duration TEXT,
+    unlock_time TIMESTAMP,
     PRIMARY KEY (question_id, quiz_id),
     FOREIGN KEY (quiz_id) REFERENCES Quizzes (quiz_id) ON DELETE CASCADE
 );
