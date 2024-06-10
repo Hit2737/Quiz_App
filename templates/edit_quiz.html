@@ -22,25 +22,35 @@
         </div>
         <p>You can also proceed with our manual lock-unlock feature by leaving the time blocks unfilled</p>
         
+        {% if question['question_type'] == 'MCQ' %}
         <div id="options-container-{{ question['question_id'] }}" class="form-group">
             <label for="options">Options</label>
+            <div id="mcq-options">
             {% set options = question['options'] %}
             {% set correct_options = question['correct_options'] %}
             {% for index in range(options | length) %}
             <div class="input-group mb-2 option-item" id="option-item-{{ question['question_id'] }}-{{ index }}">
-                <input type="text" class="form-control" name="options" value="{{ options[index] }}" required>
+                <input type="text" class="form-control" name="options" value="{{ options[index]['option_text'] }}" required>
                 <div class="input-group-append">
-                    <div class="input-group-text">
-                        <input type="hidden" name="correct_options_{{ index }}" value="off">
-                        <input type="checkbox" name="correct_options_{{ index }}" value="on" {% if correct_options[index] == 0 %}checked{% endif %}>
-                    </div>
-                    <button type="button" class="btn btn-danger" onclick="deleteOption({{ question['question_id'] }}, {{ index }})">Delete</button>
+                <div class="input-group-text">
+                    <input type="hidden" name="correct_options_{{ index }}" value="off">
+                    <input type="checkbox" name="correct_options_{{ index }}" value="on" {% if correct_options[index] == 1 %}checked{% endif %}>
+                </div>
+                <button type="button" class="btn btn-danger" onclick="deleteOption({{ question['question_id'] }}, {{ index }})">Delete</button>
                 </div>
             </div>
             {% endfor %}
-        </div>
-        
         <button type="button" class="btn btn-secondary mb-3" onclick="addOption({{ question['question_id'] }})">Add Option</button>
+            </div>
+        </div>
+        {% endif %}
+
+        {% if question['question_type'] == 'Text' %}
+        <div id="text-container-{{ question['question_id'] }}" class="form-group">
+            <label for="answer">Answer</label>
+            <input type="text" class="form-control" id="answer" name="answer" value="{{ question['options'][0]['option_text'] }}" required>
+        </div>
+        {% endif %}
         <div>
             <button type="submit" name="update" class="btn btn-success">Update Question</button>
         </div>

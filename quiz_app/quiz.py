@@ -95,7 +95,7 @@ def add_questions():
                 )
         db.commit()
         
-        return redirect(url_for('quiz.start_time'))
+        return redirect(url_for('interface.admin_dashboard'))
     
     return render_template('add_ques.html', quiz_id=quiz_id, quiz_data=quiz_data)
 
@@ -168,57 +168,93 @@ def start_time():
 
 
 
-
 @bp.route('/quiz/edit/<int:quiz_id>', methods=['GET', 'POST'])
 @admin_login_required
 def edit_quiz(quiz_id):
     db = get_db()
     quiz_data = db.execute('SELECT * FROM Quizzes WHERE quiz_id = ?', (quiz_id,)).fetchone()
-    # question_data = db.execute('SELECT * FROM Questions WHERE quiz_id = ?', (quiz_id,)).fetchone()
-    if (quiz_data is None) or (quiz_data['admin_id'] != g.user['id']):
+
+    if (quiz_data is None) or (quiz_data['admin_id'] != g.admin['admin_id']):
         abort(404)
 
     questions = db.execute('SELECT * FROM Questions WHERE quiz_id = ? ORDER BY question_id', (quiz_id,)).fetchall()
     questions_list = []
     for question in questions:
-        question_dict = dict(question)
-        question_dict['options'] = json.loads(question_dict['options'])
-        question_dict['correct_options'] = json.loads(question_dict['correct_options'])
+        question_dict = {}
+        question_dict['question_id'] = question['question_id']
+        question_dict['question_text'] = question['question_text']
+        question_dict['question_type'] = question['question_type']
+        options = db.execute('SELECT * FROM Options WHERE quiz_id = ? AND question_id = ?', (quiz_id, question['question_id'])).fetchall()
+        option_list = []
+        correct_options = []
+        for option in options:
+            option_dict = {}
+            option_dict['option_id'] = option['option_id']
+            option_dict['option_text'] = option['option_text']
+            option_dict['correct'] = option['correct']
+            option_list.append(option_dict)
+            if option['correct'] == 1:
+                correct_options.append(1)
+            else:
+                correct_options.append(0)
+        question_dict['options'] = option_list
+        question_dict['correct_options'] = correct_options
         questions_list.append(question_dict)
+
     if request.method == "POST":
-        print("POST request received")
-        if 'update' in request.form:
-            print("Updating question")
-            question_id = request.form['question_id']
-            question_text = request.form['question']
-            options = request.form['options']
-            print("Options:", options)    
-            hours = request.form['hours']
-            minutes = request.form['minutes']
-            seconds = request.form['seconds']
-            if not hours and not minutes and not seconds:
+        questions = request.form.getlist('question')
+        ques_types = request.form.getlist('ques_type')
+        text_answers = request.form.getlist('answer')
+        for i in range(len(questions)):
+            question = questions[i]
+            ques_type = ques_types[i]
+            text_answer = text_answers[i]
+            hour = request.form.get('hours-' + str(i+1))
+            minute = request.form.get('minutes-' + str(i+1))
+            second = request.form.get('seconds-' + str(i+1))
+            if not hour and not minute and not second:
                 duration = None
             else:
-                if not hours:
-                    hours = '00'
-                if not minutes:
-                    minutes = '00'
-                if not seconds:
-                    seconds = '00'
-                duration = hours + ':' + minutes + ':' + seconds + '.000'
-            option_list = options.split(',')
-            print("Options:", option_list)
-            options_json = json.dumps(option_list)
+                if not hour:
+                    hour = '00'
+                if not minute:
+                    minute = '00'
+                if not second:
+                    second = '00'
+                duration = f"{hour}:{minute}:{second}.000"
+            options = request.form.getlist('option-' + str(i+1))
+            correct_options = request.form.getlist('correct-' + str(i+1))
+
             db.execute(
-                'UPDATE Questions SET question_text = ?, options = ?, duration = ? WHERE quiz_id = ? AND question_id = ?',
-                (question_text, options_json, duration, quiz_id, question_id)
+                'UPDATE Questions SET quiz_id=?, question_id=?, question_text=?, question_type=?, duration=?',
+                (quiz_id, i+1, question, ques_type, duration)
             )
-            db.commit()
-            return redirect(url_for('quiz.edit_quiz', quiz_id=quiz_id, questions=questions_list))
+            db.execute('DELETE FROM Options WHERE quiz_id = ? AND question_id = ?', (quiz_id, i+1))
+            if ques_type == 'MCQ':
+                for j in range(len(options)):
+                    if str(j+1) in correct_options:
+                        db.execute(
+                            'INSERT INTO Options (quiz_id, question_id, option_id, option_text, correct)'
+                            'VALUES (?, ?, ?, ?, ?)',
+                            (quiz_id, i+1, j+1, options[j], 1)
+                        )
+                    else:
+                        db.execute(
+                            'INSERT INTO Options (quiz_id, question_id, option_id, option_text, correct)'
+                            'VALUES (?, ?, ?, ?, ?)',
+                            (quiz_id, i+1, j+1, options[j], 0)
+                        )
+            elif ques_type == 'Text':
+                db.execute(
+                    'INSERT INTO Options (quiz_id, question_id, option_id, option_text, correct)'
+                    'VALUES (?, ?, ?, ?, ?)',
+                    (quiz_id, i+1, 1, text_answer, 1)
+                )
+        db.commit()
+
+        return redirect(url_for('quiz.start_time'))
+
     return render_template('edit_quiz.html', quiz_id=quiz_id, questions=questions_list)
-
-    
-
     
 @bp.route('/quiz/delete/<int:quiz_id>', methods=['GET','POST'])
 @admin_login_required
