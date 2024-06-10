@@ -34,7 +34,7 @@
             {% if ques['question_id'] != ques_count %}
                 <input type="submit" class="next-button" id="next" value="Next Question">
                 <label for="submit" style="display: none;"></label>
-                <input type="submit" class="next-button" id="submit" value="Submit Quiz">
+                <input type="submit" class="next-button" id="submit" value="Submit Quiz" style="display: none;">
             {% else %}
                 <label for="submit" style="display: none;"></label>
                 <input type="submit" class="next-button" id="submit" value="Submit Quiz">
@@ -47,7 +47,7 @@
         if (duration == -1){
             document.getElementById("timer").innerHTML = "Admin can lock/unlock the question anytime!";
         }
-        {% if duration != -1%}
+        {% if duration != -1 %}
             var hours = parseInt({{ques['duration'].split(':')[0]}});
             var minutes = parseInt({{ques['duration'].split(':')[1]}});
             var seconds = parseInt({{ques['duration'].split(':')[2].split('.')[0]}});
@@ -65,15 +65,16 @@
                 if (hours < 0) {
                     clearInterval(timer);
                     document.getElementById("timer").innerHTML = "Time's up!";
-                    document.getElementById("next").click();
+                    sessionStorage.setItem("current_question", {{ques['question_id'] + 1}});
+                    window.location.href = "{{url_for('interface.quiz_interface',quiz_id=quiz.quiz_id)}}";
                 }
             }, 1000);
         {% endif %}
-        window.onblur = function () {
-            // run a function in file quiz.py
-            alert("You disobeyed the rules! Your Quiz has been submitted. If you think this is a mistake, please contact the invigilator.");
-            window.location.href = "{{url_for('quiz.forced_submit_quiz',quiz_id=quiz.quiz_id)}}";
-        };
+        // window.onblur = function () {
+        //     // run a function in file quiz.py
+        //     alert("You disobeyed the rules! Your Quiz has been submitted. If you think this is a mistake, please contact the invigilator.");
+        //     window.location.href = "{{url_for('quiz.forced_submit_quiz',quiz_id=quiz.quiz_id)}}";
+        // };
         
         // window.onload = function () {
         //     openFullscreen();

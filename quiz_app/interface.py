@@ -18,6 +18,7 @@ def admin_dashboard():
 @bp.route('/dashboard', methods=('GET', 'POST'))
 @login_required
 def dashboard():
+    error2 = None
     if(request.method == 'POST'):
         session['current_question'] = 1
         session['quiz_id'] = request.form['quiz_code']
@@ -57,11 +58,11 @@ def quiz_interface():
     ques_count = get_db().execute(
         'SELECT COUNT(*) FROM Questions WHERE quiz_id = ?', (quiz['quiz_id'],)
     ).fetchone()
+    if(int(session['current_question']) > ques_count[0]):
+        return redirect(url_for('interface.thankyou'))
     current_question = get_db().execute(
         'SELECT * FROM Questions WHERE quiz_id = ? AND question_id = ?', (quiz['quiz_id'], session['current_question'],)
     ).fetchone()
-    if(int(session['current_question']) > ques_count[0]):
-        return redirect(url_for('interface.thankyou'))
     if current_question['duration'] is None:
         if current_question['lock'] == 1:
             return redirect(url_for('interface.ques_locked'))

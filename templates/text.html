@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Maker</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .question-container {
+            margin-bottom: 20px;
+        }
+        .option-container {
+            margin-left: 20px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Create a Quiz</h1>
+    <form id="quiz-form">
+        <div class="question-container">
+            <label for="question-type">Question Type:</label>
+            <select id="question-type" name="question-type" onchange="handleQuestionTypeChange()">
+                <option value="multiple-select">Multiple Select</option>
+                <option value="text-answer">Text Answer</option>
+            </select>
+        </div>
+        <div class="question-container">
+            <label for="question-text">Question:</label>
+            <input type="text" id="question-text" name="question-text" required>
+        </div>
+        <div class="question-container" id="options-container">
+            <label>Options:</label>
+            <div id="options-list">
+                <div class="option-container">
+                    <input type="text" name="option" required>
+                    <button type="button" onclick="removeOption(this)">Remove</button>
+                </div>
+            </div>
+            <button type="button" onclick="addOption()">Add Option</button>
+        </div>
+        <div class="question-container">
+            <label for="question-duration">Question Duration (seconds):</label>
+            <input type="number" id="question-duration" name="question-duration" min="1" required>
+        </div>
+        <button type="submit">Create Question</button>
+    </form>
+
+    <script>
+        function handleQuestionTypeChange() {
+            const questionType = document.getElementById('question-type').value;
+            const optionsContainer = document.getElementById('options-container');
+            if (questionType === 'multiple-select') {
+                optionsContainer.style.display = 'block';
+            } else {
+                optionsContainer.style.display = 'none';
+            }
+        }
+
+        function addOption() {
+            const optionsList = document.getElementById('options-list');
+            const optionContainer = document.createElement('div');
+            optionContainer.className = 'option-container';
+            optionContainer.innerHTML = `
+                <input type="text" name="option" required>
+                <button type="button" onclick="removeOption(this)">Remove</button>
+            `;
+            optionsList.appendChild(optionContainer);
+        }
+
+        function removeOption(button) {
+            const optionContainer = button.parentNode;
+            optionContainer.parentNode.removeChild(optionContainer);
+        }
+
+        // Initialize the form with the correct display
+        document.addEventListener('DOMContentLoaded', handleQuestionTypeChange);
+    </script>
+</body>
+</html>

@@ -14,6 +14,7 @@ def create():
     if request.method == 'POST':
         quiz_id = request.form['quiz_id']
         quiz_name = request.form['quiz_name']
+        session['quiz_id'] = quiz_id
         error = None
 
         if not quiz_id:
@@ -31,67 +32,56 @@ def create():
                 (quiz_id, quiz_name, int(g.admin['admin_id']))
             )
             db.commit()
-            return redirect(url_for('quiz.add_questions',quiz_id=quiz_id))
+            return redirect(url_for('quiz.add_questions'))
 
     return render_template('create_quiz.html')
 
-@bp.route('/add-questions/<quiz_id>', methods=('GET', 'POST'))
+@bp.route('/add-questions', methods=['GET', 'POST'])
 @admin_login_required
-def add_questions(quiz_id):
+def add_questions():
     db = get_db()
+    quiz_id = session.get('quiz_id')
+    if not quiz_id:
+        # Handle the case where quiz_id is not in session
+        flash('Quiz ID is missing!', 'error')
+        return redirect(url_for('quiz.dashboard'))
+
     quiz_data = db.execute('SELECT * FROM Quizzes WHERE quiz_id = ?', (quiz_id,)).fetchone()
-    if (quiz_data is None) or (quiz_data['admin_id'] != g.admin['admin_id']):
-        abort(404)
+    
     if request.method == 'POST':
-        questions = request.form.getlist('question')
-        hours = request.form.getlist('hours')
-        minutes = request.form.getlist('minutes')
-        seconds = request.form.getlist('seconds')
-        print("Questions:", questions)
-        for i in range(len(questions)):
-            question = questions[i]
-            option_list = request.form.getlist(f'options-{i}')
-            correct_option_list = request.form.getlist(f'correct_options-{i}')
+        print("POST request received")
+        print(request.form)
+        
+        # Process the form data
+        questions = []
+        for key in request.form:
+            print(f"{key}: {request.form[key]}")
+            if key.startswith('question-'):
+                questions.append({
+                    'question': request.form[key],
+                    'type': request.form.get(f'ques_type-{key.split("-")[1]}'),
+                    'time_limit': {
+                        'hours': request.form.get(f'hours-{key.split("-")[1]}'),
+                        'minutes': request.form.get(f'minutes-{key.split("-")[1]}'),
+                        'seconds': request.form.get(f'seconds-{key.split("-")[1]}')
+                    },
+                    'options': [
+                        {
+                            'text': request.form.get(f'option-{key.split("-")[1]}-{i+1}'),
+                            'correct': request.form.get(f'correct-{key.split("-")[1]}-{i+1}') == 'on'
+                        } for i in range(len([k for k in request.form if k.startswith(f'option-{key.split("-")[1]}')]))
+                    ] if request.form.get(f'ques_type-{key.split("-")[1]}') == 'MCQ' else [],
+                    'answer': request.form.get(f'answer-{key.split("-")[1]}') if request.form.get(f'ques_type-{key.split("-")[1]}') == 'Text' else None
+                })
+        
+        print("Extracted questions:", questions)
+        
+        # Here you can save the questions to the database
+        
+        flash('Questions added successfully!', 'success')
+    
+    return render_template('add_ques.html', quiz_id=quiz_id, quiz_data=quiz_data)
 
-            print("Form Data:", request.form)  # Print the entire form data for debugging
-            print("Form Data:", request.form.keys)  # Print the entire form data for debugging
-            print("Form Data:", request.form.values)  # Print the entire form data for debugging
-            print("Options:", option_list)  # Print options
-            print("Correct Options:", correct_option_list)
-
-            hour = hours[i]
-            minute = minutes[i]
-            second = seconds[i]
-            if not hour and not minute and not second:
-                duration = None
-            else:
-                if not hour:
-                    hour = '00'
-                if not minute:
-                    minute = '00'
-                if not second:
-                    second = '00'
-                duration = f"{hour}:{minute}:{second}.000"
-
-            if not question:
-                flash('Question is required.')
-            else:
-                result = db.execute('SELECT MAX(question_id) FROM Questions WHERE quiz_id = ?', (quiz_id,)).fetchone()
-                next_question_id = (result[0] or 0) + 1
-                options_json = json.dumps(option_list)
-                correct_options_json = json.dumps(correct_option_list)
-                db.execute(
-                    'INSERT INTO Questions (question_id, quiz_id, question_text, options, correct_options, duration)'
-                    ' VALUES (?, ?, ?, ?, ?, ?)',
-                    (next_question_id, quiz_id, question, options_json, correct_options_json, duration)
-                )
-                db.commit()
-
-        if 'add_next' in request.form:
-            return redirect(url_for('quiz.add_questions', quiz_id=quiz_id))
-        else:
-            return redirect(url_for('quiz.start_time', quiz_id=quiz_id))
-    return render_template('addQues.html', quiz_id=quiz_id)
 
 
 @bp.route('/submit_response/<quiz_id>/<question_id>', methods=['POST'])
@@ -114,8 +104,7 @@ def submit_response(quiz_id, question_id):
     else:
         db.execute(
             'INSERT INTO UserResponses (user_id, quiz_id, question_id, selected_options, time_stamp)'
-            ' VALUES (?, ?, ?, ?, ?)',
-            (user_id, quiz_id, question_id, selected_options_json, 'DATETIME("now","localtime")')
+            ' VALUES (?, ?, ?, ?, ?)', (user_id, quiz_id, question_id, selected_options_json, db.execute('SELECT DATETIME("now","localtime")').fetchone()[0])
         )
         db.commit()
     ques_count = db.execute(
