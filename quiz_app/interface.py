@@ -67,11 +67,6 @@ def quiz_interface():
         'SELECT COUNT(*) FROM Questions WHERE quiz_id = ?', (quiz['quiz_id'],)
     ).fetchone()[0]
     
-    print(session)
-    # Checking if questions are remaining
-    if(int(session['current_question']) > ques_count):
-        return redirect(url_for('interface.thankyou'))
-    
     # Getting the current questions from the database
     question = db.execute(
         'SELECT * FROM Questions WHERE quiz_id = ? AND question_id = ?', (quiz['quiz_id'], session['current_question'],)

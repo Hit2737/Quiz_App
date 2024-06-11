@@ -105,11 +105,12 @@ def add_questions():
 
 
 
-@bp.route('/user_response/<dur>', methods=['POST'])
+@bp.route('/user_response', methods=['GET','POST'])
 @login_required
-def user_response(dur):
+def user_response():
     db = get_db()
     quiz = db.execute('SELECT * FROM Quizzes WHERE quiz_id = ?', (session['quiz_id'],)).fetchone()
+    question = db.execute('SELECT * FROM Questions WHERE quiz_id = ? AND question_id = ?', (quiz['quiz_id'], session['current_question'])).fetchone()
     if request.method == 'POST':
         print(request.form)
         responses = request.form.getlist('response-' + str(session['current_question']))
@@ -122,12 +123,12 @@ def user_response(dur):
         db.commit()
         if 'next' in request.form:
             session['current_question'] = int(session['current_question']) + 1
-            if dur:
+            if question['duration'] != None:
                 db.execute('UPDATE Questions SET lock = 1 WHERE quiz_id = ? AND question_id = ?', (quiz['quiz_id'], int(session['current_question']) - 1))
                 db.commit()        
             return redirect(url_for('interface.quiz_interface'))
         if 'submit' in request.form:
-            if dur:
+            if question['duration'] != None:
                 db.execute('UPDATE Questions SET lock = 1 WHERE quiz_id = ? AND question_id = ?', (quiz['quiz_id'], int(session['current_question'])))
                 db.commit()
             return redirect(url_for('interface.thankyou'))

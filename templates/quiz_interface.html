@@ -17,7 +17,7 @@
             {{ques.question_text}}
         </div>
         <div style="margin-top: 40px;"></div>
-        <form method="post" action="{{ url_for('quiz.user_response',dur=ques['duration'])}}">
+        <form method="post" action="{{url_for('quiz.user_response')}}">
             <ul class="options">
                 {% for option in options %}
                     {% if ques['question_type'] == 'MCQ' %}
