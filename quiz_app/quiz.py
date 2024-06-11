@@ -215,6 +215,12 @@ def delete_quiz(quiz_id):
 
 
 
+def delete_quiz_questions(quiz_id):
+    db = get_db()
+    db.execute('DELETE FROM Questions WHERE quiz_id = ?', (quiz_id,))
+    db.commit()
+
+
 @bp.route('/quiz/start/<int:quiz_id>', methods=['GET','POST'])
 @admin_login_required
 def start_quiz(quiz_id):
