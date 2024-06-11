@@ -11,7 +11,9 @@
             <button type="submit" name="automatic" id="automatic" class="button">Add Quiz Start Date-Time</button>
         </form>
         <h3>OR Proceed with Manual Start</h3>
-        <a type="button" href="{{url_for('interface.admin_dashboard')}}" class="button">Manual</a>
+        <form action="{{url_for('quiz.start_time',quiz_id=quiz_id)}}" method="POST">
+            <button type="submit" name="manual" id="manual" class="button">Proceed with Manual Start</button>
+        </form>
         
     </div>
     <!-- Bootstrap JS and dependencies -->
