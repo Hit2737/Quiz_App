@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+    {% block title %}IITGN Local Hosted Quiz WebApp{% endblock %}
+    
+    {% block content%}
+    <div class="quiz-container">
+        <div class="quiz_code-container">
+            Quiz Code: <span id="quiz_code">{{quiz.quiz_id}}</span>
+        </div>
+        <div class="quiz-header">
+            <div class="username">Username: <span id="username">{{g.user['username']}}</span></div>
+        </div>
+        
+        <div class="timer">
+            Time Left: <span id="timer"></span>
+        </div>
+        <div class="question">
+            {{ques.question_text}}
+        </div>
+        <div style="margin-top: 40px;"></div>
+        <form method="post" action="{{url_for('quiz.user_response')}}">
+            <ul class="options">
+                {% for option in options %}
+                    {% if ques['question_type'] == 'MCQ' %}
+                        <li>
+                            <input type="checkbox" id="{{option['option_id']}}" name="response-{{ques['question_id']}}" value="{{option['option_id']}}">
+                            <label for="{{option['option_id']}}">{{option['option_text']}}</label>
+                        </li>
+                    {% elif ques['question_type'] == 'Text' %}
+                        <li>
+                            <label for="response-{{question_id}}">Type your answer.</label>
+                            <input type="text" id="response-{{ques['question_id']}}" name="response-{{ques['question_id']}}" value="">
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+            {% if ques['question_id'] != ques_count %}
+                <button type="submit" class="btn" name="next" value="next" id="next">Next</button>
+            {% else %}
+                <button type="submit" class="btn" name="submit" value="submit">Submit</button>
+            {% endif %}
+            <div class="footer">
+                {{ques['question_id']}} of {{ques_count}} Questions
+            </div>
+            
+        </form>
+    </div>
+    <script>
+        {% if ques['duration'] == None %}
+            document.getElementById("timer").innerHTML = "Admin can lock/unlock the question anytime!";
+        {% else %}
+            const unlock_time = new Date("{{ques['unlock_time']}}").getTime();
+            // console.log(distance);
+            var hours = parseInt("{{ques['duration'].split(':')[0]}}");
+            var minutes = parseInt("{{ques['duration'].split(':')[1]}}");
+            var seconds = parseInt("{{ques['duration'].split(':')[2].split('.')[0]}}");
+            const max_dist = (hours*3600) + (minutes*60) + seconds;
+            const timer = setInterval(function() {
+
+                var now = new Date().getTime();
+                var distance = Math.floor((now-unlock_time)/1000);
+                distance = max_dist - distance;
+                hours = Math.floor(distance/(3600));
+                minutes = Math.floor((distance%(3600))/(60));
+                seconds = Math.floor(distance%60);
+                document.getElementById("timer").innerHTML = hours + "h " + minutes + "m " + seconds + "s ";
+
+                if(distance < 0){
+                    clearInterval(timer);
+                    document.getElementById("timer").innerHTML = "Time's up!";
+                    if("{{ques['question_id']}}" != "{{ques_count}}"){
+                        document.getElementById("next").click();
+                    }
+                    else{
+                        document.getElementById("submit").click();
+                    }
+
+                }
+            }, 1000);
+        {% endif %}
+        // window.onblur = function () {
+        //     // run a function in file quiz.py
+        //     alert("You disobeyed the rules! Your Quiz has been submitted. If you think this is a mistake, please contact the invigilator.");
+        //     window.location.href = "{{url_for('quiz.forced_submit_quiz',quiz_id=quiz.quiz_id)}}";
+        // };
+        
+        // window.onload = function () {
+        //     openFullscreen();
+        // };
+        // var elem = document.documentElement;
+        // function openFullscreen() {
+        //     if (elem.requestFullscreen) {
+        //         elem.requestFullscreen();
+        //     } else if (elem.webkitRequestFullscreen) { /* Safari */
+        //         elem.webkitRequestFullscreen();
+        //     } else if (elem.msRequestFullscreen) { /* IE11 */
+        //         elem.msRequestFullscreen();
+        //     }
+        // }
+    </script>
+    {% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block title %}Information{% endblock %}
+
+{% block content %}
+    <h1>Necessary Information before proceeding further:</h1>
+    <p>DOs and DON'Ts while giving Quiz:</p>
+    <ul>
+        <li>Make sure you have stable Internet Connection</li>
+        <li>Make sure you don't change your tab</li>
+        <li>Don't minimize the window</li>
+        <li>Don't change the browser</li>
+        <li>Don't close the tab/window</li>
+        <li>Don't open new tab/window</li>
+    </ul>
+    <p>
+        You will not be able to give the quiz if you disobey the above rules.
+    </p>
+    <a href="{{ url_for('interface.dashboard') }}" type="button">Go Back to Dashboard</a>
+    <a href="{{ url_for('interface.quiz_interface') }}" type="button">Proceed to Quiz</a>
+{% endblock %}
