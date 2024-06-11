@@ -44,28 +44,36 @@
                     <p>If you want to go for Manual Lock Unlock Feature, then leave the time blocks unfilled.</p>
                 </div>
                 {% if question["question_type"] == 'MCQ' %}
-                    {% for option in question['options'] %}
                     <div class="options_container" id="options_container">
                         <label for="options">Options:</label>
                         <div id="options-list">
+                        {% for option in question['options'] %}
+                            <div class="option-container">
+                                {{loop.index}}<input type="text" name="option-{{question['question_id']}}" value="{{option['option_text']}}" required>
+                                {% if option['correct']==1 %}
+                                    <input type="checkbox" name="correct-{{question['question_id']}}" checked value="{{loop.index}}">
+                                {% else %}
+                                    <input type="checkbox" name="correct-{{question['question_id']}}" value="{{loop.index}}">
+                                {% endif %}
+                                <button type="button" onclick="removeOption(this)">Remove</button> 
+                            </div>  
+                        {% endfor %}
                         </div>
-                        <input type="text" name="option-{{question['question_id']}}" value="{{option['option_text']}}" required>
-                        {% if option['correct']==1 %}
-                        <input type="checkbox" name="correct-{{question['question_id']}}" checked>
-                        {% else %}
-                        <input type="checkbox" name="correct-{{question['question_id']}}">
-                        {% endif %}
-                        <button type="button" onclick="removeOption(this)">Remove</button>
+                        <button type="button" onclick="addOption(this)">Add Option</button>
                     </div>
-                    {% endfor %}
-                    <button type="button" onclick="addOption(this)">Add Option</button>
-                    <div class="answer_text" id="answer_text">
-                        <label for="answer">Answer:</label>
+                    <div class="answer_text" id="answer_text" style="display: none;">
+                        <label for="answer"></label>
                         <input type="text" name="answer" value="Answer" required>
                     </div>
                 {% else %}
+                <div class="options_container" id="options_container" style="display: none;">
+                    <label for="options">Options:</label>
+                    <div id="options-list">
+                    </div>
+                    <button type="button" onclick="addOption(this)">Add Option</button>
+                </div>
                 <div class="answer_text" id="answer_text">
-                    <label for="answer">Answer:</label>
+                    <label for="answer"></label>
                     <input type="text" name="answer" value="{{question['options'][0]['option_text']}}" required>
                 </div>
                 {% endif %}

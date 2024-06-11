@@ -99,7 +99,7 @@ def add_questions(quiz_id):
                 duration = f"{hour}:{minute}:{second}.000"
             options = request.form.getlist('option-' + str(i+1))
             correct_options = request.form.getlist('correct-' + str(i+1))
-
+            print(correct_options)
             db.execute(
                 'INSERT INTO Questions (quiz_id, question_id, question_text, question_type, duration)'
                 ' VALUES (?, ?, ?, ?, ?)',
