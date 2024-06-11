@@ -6,6 +6,9 @@ from quiz_app.auth import login_required, admin_login_required
 import json
 bp = Blueprint('interface', __name__, url_prefix='/')
 
+
+
+
 @bp.route('/admin_dashboard', methods=('GET', 'POST'))
 @admin_login_required
 def admin_dashboard():
@@ -13,6 +16,8 @@ def admin_dashboard():
         'SELECT * FROM Quizzes WHERE admin_id = ?', (g.admin['admin_id'],)
     ).fetchall()
     return render_template('admin_dashboard.html', Quizzes=Quizzes)
+
+
 
 
 @bp.route('/dashboard', methods=('GET', 'POST'))
@@ -39,16 +44,20 @@ def dashboard():
             error2 = None
             flash("Quiz Started")
             return redirect(url_for('interface.information'))
-        
-        
     if error2 is not None:
         flash(error2)
     return render_template('dashboard.html')
+
+
+
 
 @bp.route('/information')
 @login_required
 def information():
     return render_template('information.html')
+
+
+
 
 @bp.route('/quiz_interface', methods=['GET', 'POST'])
 @login_required
@@ -81,10 +90,15 @@ def quiz_interface():
     return  render_template('quiz_interface.html' ,quiz=quiz, ques=question, ques_count=ques_count, options=options,curr_ques= session['current_question'])
     
 
+
+
 @bp.route('/ques_locked')
 @login_required
 def ques_locked():
     return render_template('ques_locked.html')
+
+
+
 
 @bp.route('/thankyou')
 @login_required

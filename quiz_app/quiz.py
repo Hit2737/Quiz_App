@@ -8,6 +8,10 @@ import json
 
 bp = Blueprint('quiz', __name__)
 
+
+
+
+
 @bp.route('/quiz/create', methods=('GET', 'POST'))
 @admin_login_required
 def create():
@@ -35,19 +39,44 @@ def create():
                 (quiz_id, quiz_name, int(g.admin['admin_id']))
             )
             db.commit()
-            return redirect(url_for('quiz.add_questions'))
+            return redirect(url_for('quiz.add_questions', quiz_id=quiz_id))
 
     return render_template('create_quiz.html')
 
-@bp.route('/add-questions', methods=['GET', 'POST'])
-@admin_login_required
-def add_questions():
-    db = get_db()
-    quiz_id = session.get('quiz_id')
 
-    quiz_data = db.execute('SELECT * FROM Quizzes WHERE quiz_id = ?', (quiz_id,)).fetchone()
-    # print(request.form)
+
+
+@bp.route('/add_questions/<int:quiz_id>', methods=['GET', 'POST'])
+@admin_login_required
+def add_questions(quiz_id):
+    session['quiz_id'] = quiz_id
+    db = get_db()
+    questions = db.execute('SELECT * FROM Questions WHERE quiz_id = ? ORDER BY question_id', (quiz_id,)).fetchall()
+    questions_list = []
+    for question in questions:
+        question_dict = {}
+        question_dict['question_id'] = question['question_id']
+        question_dict['question_text'] = question['question_text']
+        question_dict['question_type'] = question['question_type']
+        options = db.execute('SELECT * FROM Options WHERE quiz_id = ? AND question_id = ?', (quiz_id, question['question_id'])).fetchall()
+        option_list = []
+        correct_options = []
+        for option in options:
+            option_dict = {}
+            option_dict['option_id'] = option['option_id']
+            option_dict['option_text'] = option['option_text']
+            option_dict['correct'] = option['correct']
+
+            option_list.append(option_dict)
+
+        question_dict['duration'] = question['duration']
+        question_dict['options'] = option_list
+        questions_list.append(question_dict)
+
     if request.method == 'POST':
+        db.execute("DELETE FROM Questions WHERE quiz_id = ?", (quiz_id,))
+        db.execute("DELETE FROM Options WHERE quiz_id = ?", (quiz_id,))
+        db.commit()
         questions = request.form.getlist('question')
         ques_types = request.form.getlist('ques_type')
         text_answers = request.form.getlist('answer')
@@ -99,8 +128,8 @@ def add_questions():
         db.commit()
         
         return redirect(url_for('quiz.start_time'))
-    
-    return render_template('add_ques.html', quiz_id=quiz_id, quiz_data=quiz_data)
+    return render_template('add_ques.html', quiz_id=quiz_id, questions=questions_list)
+
 
 
 
@@ -145,9 +174,12 @@ def start_time():
     quiz_id = session['quiz_id']
     currenttime = get_db().execute('SELECT DATETIME("now","localtime")').fetchone()[0]
     currenttime = currenttime[:-2] + '00'
-    print(currenttime)
+    db = get_db()
+    start_time = db.execute('SELECT start_time FROM Quizzes WHERE quiz_id = ?', (quiz_id,)).fetchone()[0]
     if request.method == 'POST':
         if 'manual' in request.form:
+            if (start_time != None):
+                db.execute('UPDATE Quizzes SET start_time = NULL WHERE quiz_id = ?', (quiz_id,))
             return redirect(url_for('interface.admin_dashboard'))
         start_datetime = request.form['start_datetime']
         date,time = start_datetime.split('T')
@@ -159,71 +191,17 @@ def start_time():
         if error is not None:
             flash(error)
         else:
-            db = get_db()
             db.execute(
                 'UPDATE Quizzes SET start_time = ? WHERE quiz_id = ?',
                 (start_datetime, quiz_id)
             )
             db.commit()
             return redirect(url_for('interface.admin_dashboard'))
-        
-    return render_template('start_time.html', quiz_id=quiz_id, currenttime=currenttime)
+    return render_template('start_time.html', quiz_id=quiz_id, start_time = start_time, currenttime=currenttime)
 
 
 
 
-
-@bp.route('/quiz/edit/<int:quiz_id>', methods=['GET', 'POST'])
-@admin_login_required
-def edit_quiz(quiz_id):
-    db = get_db()
-    quiz_data = db.execute('SELECT * FROM Quizzes WHERE quiz_id = ?', (quiz_id,)).fetchone()
-    # question_data = db.execute('SELECT * FROM Questions WHERE quiz_id = ?', (quiz_id,)).fetchone()
-    if (quiz_data is None) or (quiz_data['admin_id'] != g.user['id']):
-        abort(404)
-
-    questions = db.execute('SELECT * FROM Questions WHERE quiz_id = ? ORDER BY question_id', (quiz_id,)).fetchall()
-    questions_list = []
-    for question in questions:
-        question_dict = dict(question)
-        question_dict['options'] = json.loads(question_dict['options'])
-        question_dict['correct_options'] = json.loads(question_dict['correct_options'])
-        questions_list.append(question_dict)
-    if request.method == "POST":
-        print("POST request received")
-        if 'update' in request.form:
-            print("Updating question")
-            question_id = request.form['question_id']
-            question_text = request.form['question']
-            options = request.form['options']
-            print("Options:", options)    
-            hours = request.form['hours']
-            minutes = request.form['minutes']
-            seconds = request.form['seconds']
-            if not hours and not minutes and not seconds:
-                duration = None
-            else:
-                if not hours:
-                    hours = '00'
-                if not minutes:
-                    minutes = '00'
-                if not seconds:
-                    seconds = '00'
-                duration = hours + ':' + minutes + ':' + seconds + '.000'
-            option_list = options.split(',')
-            print("Options:", option_list)
-            options_json = json.dumps(option_list)
-            db.execute(
-                'UPDATE Questions SET question_text = ?, options = ?, duration = ? WHERE quiz_id = ? AND question_id = ?',
-                (question_text, options_json, duration, quiz_id, question_id)
-            )
-            db.commit()
-            return redirect(url_for('quiz.edit_quiz', quiz_id=quiz_id, questions=questions_list))
-    return render_template('edit_quiz.html', quiz_id=quiz_id, questions=questions_list)
-
-    
-
-    
 @bp.route('/quiz/delete/<int:quiz_id>', methods=['GET','POST'])
 @admin_login_required
 def delete_quiz(quiz_id):
