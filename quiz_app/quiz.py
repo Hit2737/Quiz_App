@@ -99,7 +99,6 @@ def add_questions(quiz_id):
                 duration = f"{hour}:{minute}:{second}.000"
             options = request.form.getlist('option-' + str(i+1))
             correct_options = request.form.getlist('correct-' + str(i+1))
-            print(correct_options)
             db.execute(
                 'INSERT INTO Questions (quiz_id, question_id, question_text, question_type, duration)'
                 ' VALUES (?, ?, ?, ?, ?)',
@@ -141,7 +140,6 @@ def user_response():
     quiz = db.execute('SELECT * FROM Quizzes WHERE quiz_id = ?', (session['quiz_id'],)).fetchone()
     question = db.execute('SELECT * FROM Questions WHERE quiz_id = ? AND question_id = ?', (quiz['quiz_id'], session['current_question'])).fetchone()
     if request.method == 'POST':
-        print(request.form)
         responses = request.form.getlist('response-' + str(session['current_question']))
         responses = ','.join(responses)
         db.execute(
@@ -177,24 +175,24 @@ def start_time():
     db = get_db()
     start_time = db.execute('SELECT start_time FROM Quizzes WHERE quiz_id = ?', (quiz_id,)).fetchone()[0]
     if request.method == 'POST':
+        if 'automatic' in request.form:
+            start_datetime = request.form['start_datetime']
+            date,time = start_datetime.split('T')
+            start_datetime = date + ' ' + time + ':00.000'
+            error = None
+            if not start_datetime:
+                error = 'Start date is required.'
+            if error is not None:
+                flash(error)
+            else:
+                db.execute(
+                    'UPDATE Quizzes SET start_time = ? WHERE quiz_id = ?',
+                    (start_datetime, quiz_id)
+                )
+                db.commit()
+                return redirect(url_for('interface.admin_dashboard'))
         if 'manual' in request.form:
-            if (start_time != None):
-                db.execute('UPDATE Quizzes SET start_time = NULL WHERE quiz_id = ?', (quiz_id,))
-            return redirect(url_for('interface.admin_dashboard'))
-        start_datetime = request.form['start_datetime']
-        date,time = start_datetime.split('T')
-        start_datetime = date + ' ' + time + ':00.000'  
-        print(start_datetime)
-        error = None
-        if not start_datetime:
-            error = 'Start date is required.'
-        if error is not None:
-            flash(error)
-        else:
-            db.execute(
-                'UPDATE Quizzes SET start_time = ? WHERE quiz_id = ?',
-                (start_datetime, quiz_id)
-            )
+            db.execute('UPDATE Quizzes SET start_time = NULL WHERE quiz_id = ?', (quiz_id,))
             db.commit()
             return redirect(url_for('interface.admin_dashboard'))
     return render_template('start_time.html', quiz_id=quiz_id, start_time = start_time, currenttime=currenttime)
@@ -206,7 +204,6 @@ def start_time():
 @admin_login_required
 def delete_quiz(quiz_id):
     db = get_db()
-    print("Deleting quiz with id:", quiz_id)
     db.execute('DELETE FROM Quizzes WHERE quiz_id = ?', (quiz_id,))
     db.execute('DELETE FROM Questions WHERE quiz_id = ?', (quiz_id,))
     db.execute('DELETE FROM UserResponses WHERE quiz_id = ?', (quiz_id,))
@@ -239,7 +236,6 @@ def lock_unlock_ques(quiz_id):
         question_id = request.form['question_id']
         lock_unlock = db.execute('SELECT * FROM Questions WHERE quiz_id = ? AND question_id = ?', (quiz_id, question_id)).fetchone()['lock']
         lock_unlock = not lock_unlock
-        print("Lock/Unlock:", lock_unlock)
         if 'lock_unlock' in request.form:
             db.execute('UPDATE Questions SET lock = ? WHERE quiz_id = ? AND question_id = ?', (lock_unlock ,quiz_id, question_id))
             db.commit()

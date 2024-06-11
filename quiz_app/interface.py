@@ -61,12 +61,8 @@ def information():
 
 @bp.route('/quiz_interface', methods=['GET', 'POST'])
 @login_required
-def quiz_interface():
-    if request.method == 'POST':
-        print("post")
-        
+def quiz_interface():        
     db = get_db()
-    
     quiz = db.execute(
         'SELECT * FROM Quizzes WHERE quiz_id = ?', (session['quiz_id'],)
     ).fetchone()
