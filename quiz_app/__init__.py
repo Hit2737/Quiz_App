@@ -41,5 +41,8 @@ def create_app(test_config=None):
 
     from . import interface
     app.register_blueprint(interface.bp)
+    
+    from . import approve
+    app.register_blueprint(approve.bp)
 
     return app

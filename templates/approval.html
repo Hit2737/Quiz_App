@@ -2,6 +2,7 @@
 {% block title %}Approval Page{% endblock %}
 {% block inhead %}
     <style>
+        /* Your CSS styles here */
         body {
             font-family: Arial, sans-serif;
             background-color: #f8f9fa;
@@ -118,56 +119,17 @@
         <h1>Approval Page</h1>
         <form id="approval-form" method="POST" action="/submit" onsubmit="validateForm(event)">
             <h2>Select users:</h2>
-            <!--
             <div class="button-group">
-                {% for name in names %}
+                {% for user in users %}
                 <div>
-                    <button class="approve-button" data-name="{{ name }}" onclick="toggleApproval(event, '{{ name }}')">{{ name }}</button>
+                    <button class="approve-button" data-name="{{ user.username }}" onclick="toggleApproval(event, '{{ user.username }}')">{{ user.username }}</button>
                 </div>
                 {% endfor %}
             </div>
             <div class="footer">
+                <ul class="error" id="error-message"></ul>
                 <button type="submit" class="next-button">Next</button>
             </div>
-        -->
-        <div class="button-group">
-            <div>
-                <button class="approve-button" data-name="Alice" onclick="toggleApproval(event, 'Alice')">Alice</button>
-            </div>
-            <div>
-                <button class="approve-button" data-name="Bob" onclick="toggleApproval(event, 'Bob')">Bob</button>
-            </div>
-            <div>
-                <button class="approve-button" data-name="Charlie" onclick="toggleApproval(event, 'Charlie')">Charlie</button>
-            </div>
-            <div>
-                <button class="approve-button" data-name="David" onclick="toggleApproval(event, 'David')">David</button>
-            </div>
-            <div>
-                <button class="approve-button" data-name="Eve" onclick="toggleApproval(event, 'Eve')">Eve</button>
-            </div>
-            <div>
-                <button class="approve-button" data-name="Frank" onclick="toggleApproval(event, 'Frank')">Frank</button>
-            </div>
-            <div>
-                <button class="approve-button" data-name="Grace" onclick="toggleApproval(event, 'Grace')">Grace</button>
-            </div>
-            <div>
-                <button class="approve-button" data-name="Hank" onclick="toggleApproval(event, 'Hank')">Hank</button>
-            </div>
-            <div>
-                <button class="approve-button" data-name="Ivy" onclick="toggleApproval(event, 'Ivy')">Ivy</button>
-            </div>
-            <div>
-                <button class="approve-button" data-name="Jack" onclick="toggleApproval(event, 'Jack')">Jack</button>
-            </div>
-            <div>
-                <button class="approve-button" data-name="Karen" onclick="toggleApproval(event, 'Karen')">Karen</button>
-            </div>
-            <div>
-                <button class="approve-button" data-name="Liam" onclick="toggleApproval(event, 'Liam')">Liam</button>
-            </div>
-        </div>
         </form>
     </div>
 {% endblock %}
