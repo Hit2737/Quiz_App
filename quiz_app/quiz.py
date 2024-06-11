@@ -21,7 +21,10 @@ def create():
             error = 'Quiz ID is required.'
         elif not quiz_name:
             error = 'Quiz name is required.'
-
+        elif get_db().execute(
+            'SELECT quiz_id FROM Quizzes WHERE quiz_id = ?', (quiz_id,)
+        ).fetchone() is not None:
+            error = f"Quiz {quiz_id} is already registered."
         if error is not None:
             flash(error)
         else:
