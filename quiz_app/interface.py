@@ -43,7 +43,7 @@ def dashboard():
         else:
             error2 = None
             flash("Quiz Started")
-            return redirect(url_for('interface.information'))
+            return redirect(url_for('approve.check_appr_num',quiz_id=session['quiz_id']))
     if error2 is not None:
         flash(error2)
     return render_template('dashboard.html')

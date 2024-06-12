@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Admin Approval Number{% endblock %}
+{% block content %}
+    <div class="container">
+        <h1>Approval Page</h1>
+        <p>Select the correct Approval Number.</p>
+        <form method="post" action="{{url_for('approve.check_appr_num',quiz_id=quiz_id)}}" style="display: flex; flex-direction: row;">
+            {% for num in nums %}
+                <input type="submit" class="button" name="selected_num" value="{{num}}" id="selected_num">
+            {% endfor %}
+        </form>
+    </div>
+{% endblock %}

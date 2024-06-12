@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS Quizzes(
     quiz_name TEXT NOT NULL,
     admin_id INTEGER,
     start_time TIMESTAMP,
+    appr_num INTEGER,
     FOREIGN KEY (admin_id) REFERENCES Admins (admin_id) ON DELETE CASCADE
 );
 
