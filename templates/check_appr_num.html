@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Admin Approval Number{% endblock %}
+{% block title %}Approval Page{% endblock %}
 {% block content %}
     <div class="container">
         <h1>Approval Page</h1>
@@ -10,4 +10,31 @@
             {% endfor %}
         </form>
     </div>
+    <script>
+        function sendVisibilityState(isHidden) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/is_fair/{{quiz_id}}", true);
+            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            xhr.send(JSON.stringify({ hidden: isHidden }));
+        }
+
+        function checkVisibility() {
+            if (document.hidden || !document.hasFocus()) {
+                sendVisibilityState(true);
+            } else {
+                sendVisibilityState(false);
+            }
+        }
+
+        document.addEventListener('visibilitychange', checkVisibility);
+        window.addEventListener('blur', function() {
+            setTimeout(checkVisibility, 100);
+        });
+        window.addEventListener('focus', function() {
+            setTimeout(checkVisibility, 100);
+        });
+
+        setInterval(checkVisibility, 2000);
+    </script>
+
 {% endblock %}
