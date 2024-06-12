@@ -1,7 +1,13 @@
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash,check_password_hash
 import sqlite3
 
-def add_admin(username, email, password):
+def add_admin():
+    username = input('Enter username of admin you want to add: ')
+    email = input('Enter the email of the admin you want to add: ')
+    if email.endswith('@iitgn.ac.in') == False:
+        raise ValueError('Please enter a valid IITGN email id. Exiting...')
+    password = input('Enter the password of the admin you want to add: ')
+
     db = sqlite3.connect(
         'instance/quiz_app.sqlite',
         detect_types=sqlite3.PARSE_DECLTYPES
@@ -12,21 +18,54 @@ def add_admin(username, email, password):
         'SELECT * FROM Admins WHERE email_id = ?', (email,)
     ).fetchone()
     if user is not None:
-        error = 'Admin already exists.'
+        print('Admin already exists.')
     else:
         db.execute(
             'INSERT INTO Admins (username, email_id, password) VALUES (?, ?, ?)',
             (username, email, generate_password_hash(password))
         )
         db.commit()
-    return error
+        print('Admin added successfully.')
+
+def del_admin():
+    email = input('Enter the email of the admin you want to delete: ')
+    db = sqlite3.connect(
+        'instance/quiz_app.sqlite',
+        detect_types=sqlite3.PARSE_DECLTYPES
+    )
+    db.row_factory = sqlite3.Row
+    admin = db.execute('SELECT * FROM Admins WHERE email_id = ?', (email,)).fetchone()
+    if admin is None:
+        raise ValueError('Admin does not exist.')
+    else:
+        db.execute('DELETE FROM Admins WHERE email_id = ?', (email,))
+        db.commit()
+        print('Admin deleted successfully.')
+    
+def admin_login():
+    email = input('Enter your email: ')
+    password = input('Enter your password: ')
+    db = sqlite3.connect(
+        'instance/quiz_app.sqlite',
+        detect_types=sqlite3.PARSE_DECLTYPES
+    )
+    db.row_factory = sqlite3.Row
+    admin = db.execute('SELECT * FROM Admins WHERE email_id = ?', (email,)).fetchone()
+    if admin is None:
+        raise ValueError('Admin does not exist. Please check the email.')
+    if not check_password_hash(admin['password'], password):
+        raise ValueError('Incorrect password.')
+    print('Admin logged in successfully.')
+
 
 if __name__ == '__main__':
-    username = input('Enter username: ')
-    email = input('Enter email: ')
-    password = input('Enter password: ')
-    error = add_admin(username,email, password)
-    if error is not None:
-        print(error)
+    print('You have to login first with your admin credentials.')
+    admin_login()
+    oper = input('Enter 1 to add admin, 2 to delete admin: ')
+    if oper == '1':
+        add_admin()
+    elif oper == '2':
+        del_admin()
     else:
-        print('Admin added successfully.')
+        print('Invalid input. Please try again.')
+        
