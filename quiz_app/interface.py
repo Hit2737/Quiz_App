@@ -27,8 +27,12 @@ def dashboard():
     if(request.method == 'POST'):
         session['current_question'] = 1
         session['quiz_id'] = request.form['quiz_code']
-        # Checking if user has already attempted the quiz
+        # Checking if user is black listed for that quiz
         if get_db().execute(
+            'SELECT * FROM Unfairness WHERE user_id = ? AND quiz_id = ?', (g.user['id'], session['quiz_id'],)).fetchone():
+            error2 = "You are blacklisted for this quiz"
+        # Checking if user has already attempted the quiz
+        elif get_db().execute(
         'SELECT * FROM UserResponses WHERE user_id = ? AND quiz_id = ?', (g.user['id'], session['quiz_id'],)).fetchone():
             error2 = "You have already attempted this quiz"
         # Checking if quiz_id is present in the database
@@ -43,7 +47,7 @@ def dashboard():
         else:
             error2 = None
             flash("Quiz Started")
-            return redirect(url_for('interface.information'))
+            return redirect(url_for('approve.check_appr_num',quiz_id=session['quiz_id']))
     if error2 is not None:
         flash(error2)
     return render_template('dashboard.html')

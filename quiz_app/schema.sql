@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS Quizzes(
     quiz_name TEXT NOT NULL,
     admin_id INTEGER,
     start_time TIMESTAMP,
+    appr_num INTEGER,
     FOREIGN KEY (admin_id) REFERENCES Admins (admin_id) ON DELETE CASCADE
 );
 
@@ -53,4 +54,24 @@ CREATE TABLE IF NOT EXISTS UserResponses (
     FOREIGN KEY (user_id) REFERENCES Users (id),
     FOREIGN KEY (quiz_id) REFERENCES Quizzes (quiz_id),
     FOREIGN KEY (question_id) REFERENCES Questions(question_id)
+);
+
+CREATE TABLE IF NOT EXISTS Approvals(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    quiz_id TEXT NOT NULL,
+    approval_status BOOLEAN,
+    time_stamp TIMESTAMP DEFAULT (DATETIME('now','localtime')),
+    FOREIGN KEY (user_id) REFERENCES Users (id),
+    FOREIGN KEY (quiz_id) REFERENCES Quizzes (quiz_id)
+);
+
+CREATE TABLE IF NOT EXISTS Unfairness(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    quiz_id TEXT NOT NULL,
+    unfairness_status BOOLEAN DEFAULT FALSE,
+    time_stamp TIMESTAMP DEFAULT (DATETIME('now','localtime')),
+    FOREIGN KEY (user_id) REFERENCES Users (id),
+    FOREIGN KEY (quiz_id) REFERENCES Quizzes (quiz_id)
 );
