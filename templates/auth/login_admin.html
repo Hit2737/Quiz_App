@@ -3,7 +3,7 @@
   {% block content %}
   <form method="post">
     <label for="email">IITGN Admin Email</label>
-    <input name="email" id="email" required>
+    <input type="email" name="email" id="email" required>
     <label for="password">Password</label>
     <input type="password" name="password" id="password" required>
     <input type="submit" value="Log In">
@@ -11,4 +11,6 @@
   
   <p>Don't have an account?</p>
   <p>Ask an Admin to make you an Admin.</p>
+
+  <p>Are you a student? <a href="{{ url_for('auth.login_student') }}">Login as Student</a></p>
 {% endblock %}
