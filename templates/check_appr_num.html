@@ -4,20 +4,22 @@
     <div class="container">
         <h1>Approval Page</h1>
         <p>Select the correct Approval Number.</p>
-        <form method="post" action="{{url_for('approve.check_appr_num',quiz_id=quiz_id)}}" style="display: flex; flex-direction: row;">
+        <form method="post" action="{{ url_for('approve.check_appr_num', quiz_id=quiz_id) }}" style="display: flex; flex-direction: row;">
             {% for num in nums %}
-                <input type="submit" class="button" name="selected_num" value="{{num}}" id="selected_num">
+                <input type="submit" class="button" name="selected_num" value="{{ num }}" id="selected_num">
             {% endfor %}
         </form>
     </div>
     <script>
+        // Function to send visibility state to the server
         function sendVisibilityState(isHidden) {
             var xhr = new XMLHttpRequest();
-            xhr.open("POST", "/is_fair/{{quiz_id}}", true);
+            xhr.open("POST", "/is_fair/{{ quiz_id }}", true);
             xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
             xhr.send(JSON.stringify({ hidden: isHidden }));
         }
 
+        // Function to check document visibility
         function checkVisibility() {
             if (document.hidden || !document.hasFocus()) {
                 sendVisibilityState(true);
@@ -26,6 +28,7 @@
             }
         }
 
+        // Event listeners for visibility change and focus/blur events
         document.addEventListener('visibilitychange', checkVisibility);
         window.addEventListener('blur', function() {
             setTimeout(checkVisibility, 100);
@@ -34,7 +37,48 @@
             setTimeout(checkVisibility, 100);
         });
 
+        // Check visibility at regular intervals
         setInterval(checkVisibility, 2000);
-    </script>
 
+        // Geolocation functionality
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(showPosition, showError);
+            } else { 
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        function showPosition(position) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "/update_location/{{ quiz_id }}", true);
+            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+            xhr.send(JSON.stringify({
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude
+            }));
+        }
+
+        function showError(error) {
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    alert("User denied the request for Geolocation.");
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    alert("Location information is unavailable.");
+                    break;
+                case error.TIMEOUT:
+                    alert("The request to get user location timed out.");
+                    break;
+                case error.UNKNOWN_ERROR:
+                    alert("An unknown error occurred.");
+                    break;
+            }
+        }
+
+        // Get location on page load
+        window.onload = function() {
+            getLocation();
+        };
+    </script>
 {% endblock %}
