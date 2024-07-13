@@ -68,10 +68,9 @@ def register():
                     (username, generate_password_hash(password), email_id),
                 )
                 db.commit()
+                return redirect(url_for("auth.login_student"))  
             except db.IntegrityError:
                 error = f"User {username} is already registered."
-        else:
-            return redirect(url_for("auth.login_student"))
         flash(error)
     return render_template('auth/register.html')
 
