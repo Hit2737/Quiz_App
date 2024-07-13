@@ -103,5 +103,45 @@ def ques_locked():
 @bp.route('/thankyou')
 @login_required
 def thankyou():
-    return render_template('thankyou.html')
+    return render_template('thankyou.html', quiz_id = session['quiz_id'])
+    
+    
+    
+
+@bp.route('/report', methods=['GET','POST'])
+@login_required
+def report(quiz_id = None):
+    db = get_db()
+    if quiz_id is None:
+        if request.method == 'POST':
+            quiz_id = request.form['quiz_code']
+            session['quiz_id'] = quiz_id
+        else:
+            flash("Invalid Request")
+            return redirect(url_for('interface.dashboard'))
+    quiz = db.execute('SELECT * FROM Quizzes WHERE quiz_id = ?', (quiz_id,)).fetchone()
+    
+    if(quiz is None):
+        flash("Quiz not found")
+        return redirect(url_for('interface.dashboard'))
+    
+    responses = db.execute('SELECT * FROM UserResponses WHERE quiz_id = ? AND user_id = ?', (quiz_id, g.user['id'])).fetchall()
+    questions = db.execute('SELECT * FROM Questions WHERE quiz_id = ?', (quiz_id,)).fetchall()
+    options = db.execute('SELECT * FROM Options WHERE quiz_id = ?', (quiz_id,)).fetchall()
+    
+    selected_options = {}
+    
+    for resp in responses:
+        sel_op = str(resp['selected_options'])
+        print(sel_op)
+        selected_options[resp['question_id']] = sel_op.split(',')
+    
+    for (key, value) in selected_options.items():
+        try :
+            selected_options[key] = [int(i) for i in value]
+        except:
+            pass
+    
+    return render_template('report.html', quiz=quiz, responses=responses, questions=questions, options=options, selected_options=selected_options)
+    
     

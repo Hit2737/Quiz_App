@@ -10,8 +10,6 @@ bp = Blueprint('quiz', __name__)
 
 
 
-
-
 @bp.route('/quiz/create', methods=('GET', 'POST'))
 @admin_login_required
 def create():
@@ -154,7 +152,7 @@ def user_response():
                 db.execute('UPDATE Questions SET lock = 1 WHERE quiz_id = ? AND question_id = ?', (quiz['quiz_id'], int(session['current_question']) - 1))
                 db.commit()        
             return redirect(url_for('interface.quiz_interface'))
-        if 'submit' in request.form:
+        elif 'submit' in request.form:
             if question['duration'] != None:
                 db.execute('UPDATE Questions SET lock = 1 WHERE quiz_id = ? AND question_id = ?', (quiz['quiz_id'], int(session['current_question'])))
                 db.commit()

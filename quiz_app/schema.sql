@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS Users(
 );
 
 CREATE TABLE IF NOT EXISTS Quizzes(
-    quiz_id TEXT PRIMARY KEY NOT NULL,
+    quiz_id INTEGER PRIMARY KEY NOT NULL,
     quiz_name TEXT NOT NULL,
     admin_id INTEGER,
     start_time TIMESTAMP,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS Quizzes(
 
 CREATE TABLE IF NOT EXISTS Questions(
     question_id INTEGER NOT NULL,
-    quiz_id TEXT NOT NULL,
+    quiz_id INTEGER NOT NULL,
     question_type TEXT NOT NULL,
     question_text TEXT NOT NULL,
     lock BOOLEAN DEFAULT TRUE,
@@ -34,8 +34,8 @@ CREATE TABLE IF NOT EXISTS Questions(
 );
 
 CREATE TABLE IF NOT EXISTS Options(
-    option_id TEXT NOT NULL,
-    quiz_id TEXT NOT NULL,
+    option_id INTEGER NOT NULL,
+    quiz_id INTEGER NOT NULL,
     question_id INTEGER NOT NULL,
     option_text TEXT NOT NULL,
     correct BOOLEAN DEFAULT FALSE,
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS Options(
 CREATE TABLE IF NOT EXISTS UserResponses (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
-    quiz_id TEXT NOT NULL,
+    quiz_id INTEGER NOT NULL,
     question_id INTEGER NOT NULL,
     selected_options JSON NOT NULL,
     time_stamp TIMESTAMP DEFAULT (DATETIME('now','localtime')),
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS UserResponses (
 CREATE TABLE IF NOT EXISTS Approvals(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
-    quiz_id TEXT NOT NULL,
+    quiz_id INTEGER NOT NULL,
     approval_status BOOLEAN,
     time_stamp TIMESTAMP DEFAULT (DATETIME('now','localtime')),
     FOREIGN KEY (user_id) REFERENCES Users (id),
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS Approvals(
 CREATE TABLE IF NOT EXISTS Unfairness(
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL,
-    quiz_id TEXT NOT NULL,
+    quiz_id INTEGER NOT NULL,
     unfairness_status BOOLEAN DEFAULT FALSE,
     time_stamp TIMESTAMP DEFAULT (DATETIME('now','localtime')),
     FOREIGN KEY (user_id) REFERENCES Users (id),

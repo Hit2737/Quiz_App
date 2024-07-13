@@ -50,14 +50,14 @@
         {% else %}
             const unlock_time = new Date("{{ques['unlock_time']}}").getTime();
             // console.log(distance);
-            var hours = parseInt("{{ques['duration'].split(':')[0]}}");
-            var minutes = parseInt("{{ques['duration'].split(':')[1]}}");
-            var seconds = parseInt("{{ques['duration'].split(':')[2].split('.')[0]}}");
+            let hours = parseInt("{{ques['duration'].split(':')[0]}}");
+            let minutes = parseInt("{{ques['duration'].split(':')[1]}}");
+            let seconds = parseInt("{{ques['duration'].split(':')[2].split('.')[0]}}");
             const max_dist = (hours*3600) + (minutes*60) + seconds;
             const timer = setInterval(function() {
 
-                var now = new Date().getTime();
-                var distance = Math.floor((now-unlock_time)/1000);
+                let now = new Date().getTime();
+                let distance = Math.floor((now-unlock_time)/1000);
                 distance = max_dist - distance;
                 hours = Math.floor(distance/(3600));
                 minutes = Math.floor((distance%(3600))/(60));

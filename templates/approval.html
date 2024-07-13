@@ -74,44 +74,6 @@
             background-color: #45a049;
         }
     </style>
-    <script>
-        function toggleApproval(event, name) {
-            event.preventDefault();
-            const button = event.target;
-            button.classList.toggle('approved');
-            const approvedNames = document.querySelectorAll('.approve-button.approved');
-            if (approvedNames.length < 3 || approvedNames.length > 10) {
-                document.getElementById('error-message').innerText = approvedNames.length < 3
-                    ? 'You must select at least 3 users.'
-                    : 'You can select at most 10 users.';
-            } else {
-                document.getElementById('error-message').innerText = '';
-            }
-        }
-
-        function validateForm(event) {
-            const approvedNames = document.querySelectorAll('.approve-button.approved');
-            if (approvedNames.length < 3 || approvedNames.length > 10) {
-                event.preventDefault();
-                const errorList = document.querySelector('.error');
-                errorList.innerHTML = '';
-                if (approvedNames.length < 3) {
-                    errorList.innerHTML += '<li>You must approve at least 3 users.</li>';
-                }
-                if (approvedNames.length > 10) {
-                    errorList.innerHTML += '<li>You can approve at most 10 users.</li>';
-                }
-            } else {
-                const form = document.getElementById('approval-form');
-                const approved = Array.from(approvedNames).map(btn => btn.getAttribute('data-name'));
-                const hiddenInput = document.createElement('input');
-                hiddenInput.type = 'hidden';
-                hiddenInput.name = 'approved_users';
-                hiddenInput.value = JSON.stringify(approved);
-                form.appendChild(hiddenInput);
-            }
-        }
-    </script>
 {% endblock %}
 
 {% block content %}
