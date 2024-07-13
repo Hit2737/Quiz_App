@@ -2,7 +2,7 @@ from flask import(
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 from quiz_app.db import get_db
-from quiz_app.auth import login_required, admin_login_required
+from quiz_app.auth import login_required, admin_login_required, approval_required
 import json
 bp = Blueprint('interface', __name__, url_prefix='/')
 
@@ -47,7 +47,7 @@ def dashboard():
         else:
             error2 = None
             flash("Quiz Started")
-            return redirect(url_for('approve.check_appr_num',quiz_id=session['quiz_id']))
+            return redirect(url_for('interface.information',quiz_id=session['quiz_id']))
     if error2 is not None:
         flash(error2)
     return render_template('dashboard.html')
@@ -65,6 +65,7 @@ def information():
 
 @bp.route('/quiz_interface', methods=['GET', 'POST'])
 @login_required
+@approval_required
 def quiz_interface():        
     db = get_db()
     quiz = db.execute(
@@ -102,6 +103,7 @@ def ques_locked():
 
 @bp.route('/thankyou')
 @login_required
+@approval_required
 def thankyou():
     return render_template('thankyou.html', quiz_id = session['quiz_id'])
     

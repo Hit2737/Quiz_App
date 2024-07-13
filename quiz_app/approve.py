@@ -1,49 +1,49 @@
 from flask import Blueprint, flash, g, redirect, render_template, request, url_for, session
 from werkzeug.exceptions import abort
-from quiz_app.auth import login_required, admin_login_required
+from quiz_app.auth import login_required, admin_login_required, approval_required
 from quiz_app.db import get_db
 from datetime import datetime
 import random
 
 bp = Blueprint('approve', __name__, url_prefix='/')
 
-@bp.route('/approve_users', methods=('GET', 'POST'))
-@login_required
-def approve_users():
-    db = get_db()
+# @bp.route('/approve_users', methods=('GET', 'POST'))
+# @login_required
+# def approve_users():
+#     db = get_db()
     
-    # Fetch all users except the current approver
-    users = db.execute(
-        'SELECT id, username FROM Users WHERE id != ?', (g.user['id'],)
-    ).fetchall()
+#     # Fetch all users except the current approver
+#     users = db.execute(
+#         'SELECT id, username FROM Users WHERE id != ?', (g.user['id'],)
+#     ).fetchall()
     
-    if request.method == 'POST':
-        approved_usernames = request.form.getlist('approved_users')
-        if approved_usernames:
-            quiz_id = session.get('quiz_id', None)
+#     if request.method == 'POST':
+#         approved_usernames = request.form.getlist('approved_users')
+#         if approved_usernames:
+#             quiz_id = session.get('quiz_id', None)
             
-            if quiz_id:
-                approver_id = g.user['id']
-                for username in approved_usernames:
-                    approved_user = db.execute(
-                        'SELECT id FROM Users WHERE username = ?', (username,)
-                    ).fetchone()
+#             if quiz_id:
+#                 approver_id = g.user['id']
+#                 for username in approved_usernames:
+#                     approved_user = db.execute(
+#                         'SELECT id FROM Users WHERE username = ?', (username,)
+#                     ).fetchone()
                     
-                    if approved_user:
-                        db.execute(
-                            'INSERT INTO ApprovedUsers (approver_id, approved_id, quiz_id, approval_time)'
-                            ' VALUES (?, ?, ?, ?)',
-                            (approver_id, approved_user['id'], quiz_id, db.execute('SELECT DATETIME("now", "localtime")').fetchone()[0])
-                        )
-                        db.commit()
-                        flash('Users approved successfully.')
-                        return redirect(url_for('interface.quiz_interface'))
-            else:
-                flash('Quiz ID not found in session.')
-        else:
-            flash('No users selected for approval.')
+#                     if approved_user:
+#                         db.execute(
+#                             'INSERT INTO ApprovedUsers (approver_id, approved_id, quiz_id, approval_time)'
+#                             ' VALUES (?, ?, ?, ?)',
+#                             (approver_id, approved_user['id'], quiz_id, db.execute('SELECT DATETIME("now", "localtime")').fetchone()[0])
+#                         )
+#                         db.commit()
+#                         flash('Users approved successfully.')
+#                         return redirect(url_for('interface.quiz_interface'))
+#             else:
+#                 flash('Quiz ID not found in session.')
+#         else:
+#             flash('No users selected for approval.')
     
-    return render_template('approval.html', users=users)
+#     return render_template('approval.html', users=users)
 
 
 nums = list([])
@@ -77,7 +77,7 @@ def check_appr_num(quiz_id,nums=nums):
             flash('You are approved.')
             db.execute('INSERT INTO Approvals (user_id, quiz_id, approval_status, time_stamp) VALUES (?,?,?,?)',(session['user_id'],quiz_id,1,db.execute('SELECT DATETIME("now", "localtime")').fetchone()[0]))
             db.commit()
-            return redirect(url_for('interface.information',quiz_id=quiz_id))
+            return redirect(url_for('interface.quiz_interface',quiz_id=quiz_id))
         else:
             flash('You are not approved.')
             db.execute('INSERT INTO Approvals (user_id, quiz_id, approval_status, time_stamp) VALUES (?,?,?,?)',(session['user_id'],quiz_id,0,db.execute('SELECT DATETIME("now", "localtime")').fetchone()[0]))
