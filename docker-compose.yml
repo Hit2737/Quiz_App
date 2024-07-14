@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  quiz_app:
+    build: .
+    ports:
+      - "5500:5500"
+    volumes:
+      - ./instance:/app/instance
+    environment:
+      - FLASK_APP=quiz_app
+    command: flask run --host=0.0.0.0 --port=5500 --debug
