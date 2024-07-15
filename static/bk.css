@@ -12,7 +12,7 @@
     }
 
     *:focus {
-	outline: 2px solid #ffffff;
+	outline: none;
     }
 
     img {
@@ -95,15 +95,10 @@
 
     blockquote {
 	padding-left: var(--bk-padding-m);
-	border-left: 4px solid #ffffff;
     }
 
     pre, code {
 	white-space: pre-wrap;
-	background-color: #000;
-	color: #ffffff;
-	padding: var(--bk-padding-s);
-	border-radius: 1em;
     }
 
     strong {
@@ -130,8 +125,6 @@
 
     mark {
 	padding: var(--bk-padding-xxs);
-	background-color: #ffff00;
-	color: #000000;
     }
 
     dt {
@@ -146,13 +139,10 @@
 
     thead {
 	font-weight: bolder;
-	background-color: #000;
-	color: #ffffff;
     }
 
     th, td {
 	padding: var(--bk-padding-xs);
-	border: 1px solid #ffffff;
     }
 
     li:not(:last-child), dd:not(:last-child) {
@@ -161,16 +151,11 @@
 
     hr {
 	margin-block: var(--bk-block-spacing-m);
-	border: 0;
-	border-top: 1px solid #ffffff;
     }
 
     form, article {
 	margin-block-end: var(--bk-block-spacing-m);
 	padding: var(--bk-padding-m);
-	background-color: #000;
-	color: #ffffff;
-	border-radius: 5px;
     }
 
     label {
@@ -190,26 +175,13 @@
 	margin-block-end: var(--bk-block-spacing-s);
     }
 
-    input:is([type="text"]),
+    input:is([type="text"], [type="email"], [type="search"], [type="date"], [type="time"]),
     select {
 	font: inherit;
 	padding: var(--bk-padding-xs);
-	background-color: #222222;
-	color: #ffffff;
-	border: 1px solid #ffffff;
-	border-radius: 2px;
+	background-color: inherit;
+	color: inherit;
     }
-
-	/* changes */
-	input:is([type="number"], [type="email"], [type="search"], [type="date"], [type="time"], [type="password"]),
-	select {
-	    font: inherit;
-	    padding: var(--bk-padding-xs);
-	    background-color: #222222;
-	    color: #ffffff;
-	    border: 1px solid #ffffff;
-	    border-radius: 2px;
-	}
 
     input[type="color"] {
 	padding: var(--bk-padding-xs);
@@ -233,9 +205,6 @@
 	width: max(44px, 5ex);
 	position: relative;
 	top: 1ex;
-	border: 1px solid #ffffff;
-	border-radius: 3px;
-	background-color: #222222;
     }
 
     input[type="checkbox"]:checked::after {
@@ -244,7 +213,6 @@
 	position: absolute;
 	top: -33%;
 	left: 10%;
-	color: #000;
     }
 
     input[type="radio"] {
@@ -255,9 +223,6 @@
 	width: max(44px, 5ex);
 	position: relative;
 	top: 15px;
-	border: 1px solid #ffffff;
-	border-radius: 50%;
-	background-color: #222222;
     }
 
     input[type="submit"],
@@ -270,10 +235,6 @@
     input[type="reset"], button.secondary {
 	cursor: pointer;
 	padding: var(--bk-padding-xs);
-	color: #ffffff;
-	background-color: #222222;
-	border: 1px solid #ffffff;
-	border-radius: 3px;
     }
 
 
@@ -287,15 +248,11 @@
 	width: 1rem;
 	height: 1rem;
 	cursor: pointer;
-	border: 1px solid #ffffff;
-	border-radius: 50%;
-	background-color: #000;
     }
 
     input[type="range"] {
 	height: 5px;
 	cursor: pointer;
-	background-color: #ffffff;
     }
 
     input[type="range"]:focus {
@@ -332,8 +289,6 @@
 	width: 100%;
 	resize: vertical;
 	font: inherit;
-	border: 1px solid #ffffff;
-	border-radius: 3px;
     }
 }
 
@@ -516,55 +471,17 @@
 	    color: var(--bk-text1);
 	}
 
-	/* changes */
-	html{
-		background-color: #111111;
-		color: #ffffff;
-	}
-	
-	body{
-		background-color: #111111;
-		color: #ffffff;
-		height: 100vh;
-	}
-
 	a:link {
 	    color: var(--bk-link);
 	}
 
-	/* changes */
-	a:link {
-		text-decoration: none;
-		color: #21d8fc !important;
-		background-color: #000000;
-		width: max-content;
-		height: max-content;
-		padding: var(--bk-padding-xs);
-		border-radius: 3px;
-	}
-
-	
 	a:visited {
 	    color: var(--bk-link-visited);
-	}
-	/* changes */
-	a:visited{
-		text-decoration: none;
-		color: #ffff19 !important;
-		background-color: #000000;
-		width: max-content;
-		padding: var(--bk-padding-xs);
-		border-radius: 3px;
 	}
 
 	a:hover, a:focus {
 	    text-decoration-thickness: max(3px, 0.1875em, 0.12em);
 	    text-decoration-skip-ink: none;
-	}
-	/* changes */
-	a:hover, a:focus {
-		background-color: #ffffff;
-		color: #000 !important;
 	}
 
 	a:active {
@@ -577,48 +494,25 @@
 	    color: var(--bk-active-text);
 	}
 
-	/* changes */
-	::selection, mark {
-	    background-color: #21d8fc;
-	    color: #000000;
-	}
-
 	mark::selection {
 	    background-color: var(--bk-bg);
 	    color: var(--bk-text1);
 	}
 
-	/* changes */
-	mark::selection {
-	    background-color: #000000;
-	    color: #ffffff;
+	form {
+	    background-color: var(--bk-surface1);
+	    border-radius: 1em;
 	}
 
-	form {
-	    background-color: var(--bk-surface1);
-	    border-radius: 1em;
-	}
-	/* changes */
-	form {
-	    background-color: #000000;
-	    border-radius: 1em;
-	}
 	article {
 	    background-color: var(--bk-surface1);
 	    border-radius: 1em;
 	}
-	/* changes */
-	article {
-	    background-color: #000000;
-	    border-radius: 1em;
-	}
+
 	blockquote {
 	    border-left: var(--bk-border-l);
 	}
-	/* changes */
-	blockquote {
-	    border-left: 4px solid #ffffff;
-	}
+
 	kbd {
 	    border: var(--bk-border-s);
 	    padding: var(--bk-padding-xxs);
@@ -636,19 +530,12 @@
 	select {
 	    border: var(--bk-border-s);
 	}
-	/* changes */
-	input:is([type="text"], [type="email"], [type="search"], [type="date"], [type="time"]),
-	select {
-	    border: 1px solid #ffffff;
-		color: #000;
-		background-color: #ffffff;
-	}
-	
+
 	input[type="color"] {
 	    background-color: var(--bk-bg);
 	    color: var(--bk-primary);
 	}
-	
+
 	input[type="range"]::-moz-range-thumb {
 	    border: var(--bk-border-m);
 	    border-radius: 50%;
@@ -696,19 +583,7 @@
 	    transform: translateY(4px);
 	    outline: var(--bk-border-l); /* XXX: file-selector-button does not get :focus on :active but every other button does??? */
 	}
-	/* changes */
-	input {
-	    background-color: #ffffff;
-	    color: #000;
-	}
-	input[type="submit"]:active,
-	button:active,
-	input[type="reset"]:active,
-	input[type="file"]::file-selector-button {
 
-	    background-color: #21d8fc;
-	    color: #000;
-	}
 	input:is(
 	    [type="text"],
 	    [type="email"],
@@ -723,21 +598,6 @@
 	button:focus,
 	input[type="file"]:focus::file-selector-button {
 	    outline: var(--bk-border-l);
-	}
-	/* changes */
-	input:focus {
-	    outline: 2px solid #ffffff;
-	}
-
-	form button {
-	    cursor: pointer;
-		background-color: #21d8fc;
-		color: #000;
-	}
-
-	form button.del-btn{
-		background-color: #ff0000;
-		color: #000;
 	}
 
 	details summary:focus {

@@ -2,7 +2,7 @@ from flask import(
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 from quiz_app.db import get_db
-from quiz_app.auth import login_required, admin_login_required
+from quiz_app.auth import login_required, admin_login_required, approval_required
 import json
 bp = Blueprint('interface', __name__, url_prefix='/')
 
@@ -27,8 +27,12 @@ def dashboard():
     if(request.method == 'POST'):
         session['current_question'] = 1
         session['quiz_id'] = request.form['quiz_code']
-        # Checking if user has already attempted the quiz
+        # Checking if user is black listed for that quiz
         if get_db().execute(
+            'SELECT * FROM Unfairness WHERE user_id = ? AND quiz_id = ?', (g.user['id'], session['quiz_id'],)).fetchone():
+            error2 = "You are blacklisted for this quiz"
+        # Checking if user has already attempted the quiz
+        elif get_db().execute(
         'SELECT * FROM UserResponses WHERE user_id = ? AND quiz_id = ?', (g.user['id'], session['quiz_id'],)).fetchone():
             error2 = "You have already attempted this quiz"
         # Checking if quiz_id is present in the database
@@ -43,7 +47,7 @@ def dashboard():
         else:
             error2 = None
             flash("Quiz Started")
-            return redirect(url_for('interface.information'))
+            return redirect(url_for('interface.information',quiz_id=session['quiz_id']))
     if error2 is not None:
         flash(error2)
     return render_template('dashboard.html')
@@ -61,6 +65,7 @@ def information():
 
 @bp.route('/quiz_interface', methods=['GET', 'POST'])
 @login_required
+@approval_required
 def quiz_interface():        
     db = get_db()
     quiz = db.execute(
@@ -98,6 +103,47 @@ def ques_locked():
 
 @bp.route('/thankyou')
 @login_required
+@approval_required
 def thankyou():
-    return render_template('thankyou.html')
+    return render_template('thankyou.html', quiz_id = session['quiz_id'])
+    
+    
+    
+
+@bp.route('/report', methods=['GET','POST'])
+@login_required
+def report(quiz_id = None):
+    db = get_db()
+    if quiz_id is None:
+        if request.method == 'POST':
+            quiz_id = request.form['quiz_code']
+            session['quiz_id'] = quiz_id
+        else:
+            flash("Invalid Request")
+            return redirect(url_for('interface.dashboard'))
+    quiz = db.execute('SELECT * FROM Quizzes WHERE quiz_id = ?', (quiz_id,)).fetchone()
+    
+    if(quiz is None):
+        flash("Quiz not found")
+        return redirect(url_for('interface.dashboard'))
+    
+    responses = db.execute('SELECT * FROM UserResponses WHERE quiz_id = ? AND user_id = ?', (quiz_id, g.user['id'])).fetchall()
+    questions = db.execute('SELECT * FROM Questions WHERE quiz_id = ?', (quiz_id,)).fetchall()
+    options = db.execute('SELECT * FROM Options WHERE quiz_id = ?', (quiz_id,)).fetchall()
+    
+    selected_options = {}
+    
+    for resp in responses:
+        sel_op = str(resp['selected_options'])
+        print(sel_op)
+        selected_options[resp['question_id']] = sel_op.split(',')
+    
+    for (key, value) in selected_options.items():
+        try :
+            selected_options[key] = [int(i) for i in value]
+        except:
+            pass
+    
+    return render_template('report.html', quiz=quiz, responses=responses, questions=questions, options=options, selected_options=selected_options)
+    
     

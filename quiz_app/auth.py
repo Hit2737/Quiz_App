@@ -45,6 +45,19 @@ def admin_login_required(view):
         return view(**kwargs)
     return wrapped_view
 
+
+def approval_required(view):
+    @functools.wraps(view)
+    def wrapped_view(**kwargs):
+        user = get_db().execute('SELECT * FROM Approvals WHERE user_id = ? AND quiz_id= ? AND approval_status = 1', (g.user['id'],session['quiz_id'])).fetchone();
+        if user != None and user['approval_status'] == 0:
+            return redirect(url_for('interface.dashboard'))
+        if user == None:
+            return redirect(url_for('approve.check_appr_num',quiz_id=session['quiz_id']))
+        return view(**kwargs)
+    return wrapped_view
+
+
 @bp.route('/register', methods=('GET', 'POST'))
 def register():
     if request.method == 'POST':
@@ -68,10 +81,9 @@ def register():
                     (username, generate_password_hash(password), email_id),
                 )
                 db.commit()
+                return redirect(url_for("auth.login_student"))  
             except db.IntegrityError:
-                error = f"User {username} is already registered."
-        else:
-            return redirect(url_for("auth.login_student"))
+                error = f"Username or Email is already registered."
         flash(error)
     return render_template('auth/register.html')
 

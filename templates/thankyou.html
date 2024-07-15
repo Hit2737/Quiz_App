@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
     {% block title %}Thankyou{% endblock %}
     {% block content %}
-    <h1>Thankyou for giving the quiz. Your marks will be provided soon.</h1>
+    <h1>Thankyou for giving the quiz.</h1>
+    <p>Your results are here. Check them out</p>
+    <a href="{{url_for('interface.report', quiz_id=quiz_id)}}" type="button" class="btn btn-outline-success">Report</a>
     <a href="{{url_for('interface.dashboard')}}" type="button" class="btn btn-outline-success">Dashboard</a>
     {% endblock %}

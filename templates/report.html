@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Quiz Report{% endblock %}
+
+{% block content %}
+<div class="report-container">
+    <h1>Quiz Report</h1>
+    <div>
+        <p><strong>Username:</strong> {{ g.user['username']}}</p>  
+        <p><strong>Quiz ID:</strong> {{ quiz.quiz_id }}</p> 
+        <p><strong>Quiz Name:</strong> {{ quiz.quiz_name }}</p>
+    </div>
+    
+    <div>
+        {% for ques in questions%}
+        <div>
+            <p><strong>Question{{ques['question_id']}}: </strong> {{ ques['question_text'] }}</p>
+            {% for option in options %}
+                {% if option['question_id'] == ques['question_id'] %}
+                    {% if ques['question_type'] == "MCQ" %}
+                        <label>{{option['option_text']}}</label>
+                        {% if option['correct'] == 1 %}
+                            {% if option['option_id'] in selected_options[ques['question_id']] %}
+                                <input type="checkbox" value="{{option['option_text']}}" disabled checked style="background-color: green;">
+                            {% else %}
+                                <input type="checkbox" value="{{option['option_text']}}" disabled style="background-color: green;">
+                            {% endif %}
+                        {% else %}
+                            {% if option['option_id'] in selected_options[ques['question_id']] %}
+                                <input type="checkbox" value="{{option['option_text']}}" disabled checked style="background-color: red">
+                            {% else %}
+                                <input type="checkbox" value="{{option['option_text']}}" disabled style="background-color: red;">
+                            {% endif %}
+                        {% endif %}
+                    {% elif ques['question_type'] == "Text" %}
+                        <p style="background-color: green; border-radius: 4px;"> Correct Answer: {{option['option_text']}}</p>
+                        {% if selected_options[ques['question_id']][0] == option['option_text'] %}
+                            <p style="background-color: green; border-radius: 4px;">Your Answer: {{selected_options[ques['question_id']][0]}}</p>
+                        {% else %}
+                            <p style="background-color: rgb(126, 28, 28); border-radius: 4px;">Your Answer: {{selected_options[ques['question_id']][0]}}</p>
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<a href="{{url_for('interface.dashboard')}}" type="button" class="btn btn-outline-success">Dashboard</a>
+{% endblock %}

@@ -17,5 +17,5 @@
         You will not be able to give the quiz if you disobey the above rules.
     </p>
     <a href="{{ url_for('interface.dashboard') }}" type="button">Go Back to Dashboard</a>
-    <a href="{{ url_for('interface.quiz_interface') }}" type="button">Proceed to Quiz</a>
+    <a href="{{ url_for('approve.check_appr_num',quiz_id=session['quiz_id']) }}" type="button">Proceed to Quiz</a>
 {% endblock %}
