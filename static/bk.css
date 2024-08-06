@@ -175,7 +175,7 @@
 	margin-block-end: var(--bk-block-spacing-s);
     }
 
-    input:is([type="text"], [type="email"], [type="search"], [type="date"], [type="time"], [type="password"]),
+    input:is([type="text"], [type="email"], [type="search"], [type="date"], [type="time"], [type="password"], [type="number"]),
     select {
 	font: inherit;
 	padding: var(--bk-padding-xs);
@@ -533,7 +533,7 @@
 	    border-bottom: var(--border-sub);
 	}
 
-	input:is([type="text"], [type="email"], [type="search"], [type="date"], [type="time"], [type="password"]),
+	input:is([type="text"], [type="email"], [type="search"], [type="date"], [type="time"], [type="password"], [type="number"]),
 	select {
 	    border: var(--bk-border-s);
 	}
