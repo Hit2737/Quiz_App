@@ -137,7 +137,7 @@ def user_response():
     db = get_db()
     quiz = db.execute('SELECT * FROM Quizzes WHERE quiz_id = ?', (session['quiz_id'],)).fetchone()
     question = db.execute('SELECT * FROM Questions WHERE quiz_id = ? AND question_id = ?', (quiz['quiz_id'], session['current_question'])).fetchone()
-    success = ""
+    
     if request.method == 'POST':
         locked = db.execute(
             'SELECT lock FROM Questions WHERE quiz_id = ? AND question_id = ?', (quiz['quiz_id'], session['current_question'])
@@ -152,9 +152,9 @@ def user_response():
                 (g.user['id'], quiz['quiz_id'], session['current_question'], responses)
             )
             db.commit()
-            success = "Your response was submitted Successfully!"
+            session['success'] = "Your response was submitted Successfully!"
         else:
-            success = "Unsuccessful Submission!!!  The question was locked before you submitted your answer!"
+            session['success'] = "Unsuccessful Submission!!!  The question was locked before you submitted your answer!"
 
         if 'next' in request.form:
             session['current_question'] = int(session['current_question']) + 1
@@ -162,19 +162,19 @@ def user_response():
                 db.execute('UPDATE Questions SET lock = 1 WHERE quiz_id = ? AND question_id = ?', (quiz['quiz_id'], int(session['current_question']) - 1))
                 db.commit()
             if (locked):
-                return redirect(url_for('interface.quiz_interface', success = success))
+                return redirect(url_for('interface.quiz_interface', success = "Unsuccessful Submission!!!  The question was locked before you submitted your answer!"))
             else:
-                return redirect(url_for('interface.quiz_interface', success = success))
+                return redirect(url_for('interface.quiz_interface', success = "Your response was submitted Successfully!"))
         elif 'submit' in request.form:
             if question['duration'] != None:
                 db.execute('UPDATE Questions SET lock = 1 WHERE quiz_id = ? AND question_id = ?', (quiz['quiz_id'], int(session['current_question'])))
                 db.commit()
             if (locked):
-                return redirect(url_for('interface.quiz_interface', success = success))
+                return redirect(url_for('interface.thankyou', success = "Unsuccessful Submission!!!  The question was locked before you submitted your answer!"))
             else:
-                return redirect(url_for('interface.quiz_interface', success = success))
+                return redirect(url_for('interface.thankyou', success = "Your response was submitted Successfully!"))
 
-    return redirect(url_for('interface.quiz_interface', success = success))
+    return redirect(url_for('interface.quiz_interface', success = session['success']))
 
 
 

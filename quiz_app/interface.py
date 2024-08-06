@@ -19,6 +19,7 @@ def admin_dashboard():
 @login_required
 def dashboard():
     error2 = None
+    session['success'] = ""
     if(request.method == 'POST'):
         session['current_question'] = 1
         session['quiz_id'] = request.form['quiz_code']
@@ -79,7 +80,7 @@ def quiz_interface(success = ""):
     
     # If unlock_time is None, then it means question is still not unlocked by the admin
     if question['unlock_time'] is None or question['lock'] == 1:
-        return redirect(url_for('interface.ques_locked', successfull = success))
+        return redirect(url_for('interface.ques_locked', successfull = session['success']))
 
     options = db.execute('SELECT * FROM Options WHERE quiz_id = ? AND question_id = ?', (quiz['quiz_id'],question['question_id'])).fetchall()
     
@@ -90,8 +91,8 @@ def quiz_interface(success = ""):
 
 @bp.route('/ques_locked')
 @login_required
-def ques_locked():
-    return render_template('ques_locked.html')
+def ques_locked(success = ""):
+    return render_template('ques_locked.html', successfull = session['success'])
 
 
 
@@ -100,7 +101,7 @@ def ques_locked():
 @login_required
 @approval_required
 def thankyou(suceess = False):
-    return render_template('thankyou.html', quiz_id = session['quiz_id'], suceess = suceess)
+    return render_template('thankyou.html', quiz_id = session['quiz_id'], suceess = session['success'])
     
     
     
@@ -122,6 +123,10 @@ def report(quiz_id = None):
         flash("Quiz not found")
         return redirect(url_for('interface.dashboard'))
     
+    responses = db.execute('SELECT * FROM UserResponses WHERE quiz_id = ? AND user_id = ?', (quiz_id, g.user['id'])).fetchone()
+    if(responses is None):
+        flash("No responses found")
+        return redirect(url_for('interface.dashboard'))
     responses = db.execute('SELECT * FROM UserResponses WHERE quiz_id = ? AND user_id = ?', (quiz_id, g.user['id'])).fetchall()
     questions = db.execute('SELECT * FROM Questions WHERE quiz_id = ?', (quiz_id,)).fetchall()
     options = db.execute('SELECT * FROM Options WHERE quiz_id = ?', (quiz_id,)).fetchall()
