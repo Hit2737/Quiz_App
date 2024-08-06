@@ -11,7 +11,7 @@
         <ul>
             {% for quiz in Quizzes %}
                 {% if quiz['admin_id'] == g.admin['admin_id'] %}
-                    <li>{{quiz['quiz_name']}}</li>
+                    <li>{{quiz['quiz_name']}} : {{quiz['quiz_id']}}</li>
                     <a href="{{url_for('quiz.add_questions',quiz_id=quiz['quiz_id'])}}" type="button" class="btn btn-outline-success">Edit Quiz</a>
                     <a href="{{url_for('quiz.delete_quiz',quiz_id=quiz['quiz_id'])}}" type="button" class="btn btn-outline-danger">Delete Quiz</a>
                     <a href="{{url_for('approve.appr_num',quiz_id=quiz['quiz_id'])}}" type="button" class="btn btn-outline-primary">Start Quiz</a>

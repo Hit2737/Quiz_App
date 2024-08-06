@@ -1,40 +1,40 @@
 {% extends 'base.html' %}
-{% block title %}Approval Page{% endblock %}
-{% block content %}
-    <div class="container">
-        <h1>Approval Page</h1>
-        <p>Select the correct Approval Number.</p>
-        <form method="post" action="{{url_for('approve.check_appr_num',quiz_id=quiz_id)}}" style="display: flex; flex-direction: row;">
-            {% for num in nums %}
-                <input type="submit" class="button" name="selected_num" value="{{num}}" id="selected_num">
-            {% endfor %}
-        </form>
-    </div>
-    <script>
-        function sendVisibilityState(isHidden) {
-            var xhr = new XMLHttpRequest();
-            xhr.open("POST", "/is_fair/{{quiz_id}}", true);
-            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
-            xhr.send(JSON.stringify({ hidden: isHidden }));
-        }
-
-        function checkVisibility() {
-            if (document.hidden || !document.hasFocus()) {
-                sendVisibilityState(true);
-            } else {
-                sendVisibilityState(false);
+    {% block title %}Approval Page{% endblock %}
+    {% block content %}
+        <div class="container">
+            <h1>Approval Page</h1>
+            <p>Select the correct Approval Number.</p>
+            <form method="post" action="{{url_for('approve.check_appr_num',quiz_id=quiz_id)}}" style="display: flex; flex-direction: row;">
+                {% for num in nums %}
+                    <input type="submit" class="button" name="selected_num" value="{{num}}" id="selected_num">
+                {% endfor %}
+            </form>
+        </div>
+        <script>
+            function sendVisibilityState(isHidden) {
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "/is_fair/{{quiz_id}}", true);
+                xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+                xhr.send(JSON.stringify({ hidden: isHidden }));
             }
-        }
 
-        document.addEventListener('visibilitychange', checkVisibility);
-        window.addEventListener('blur', function() {
-            setTimeout(checkVisibility, 100);
-        });
-        window.addEventListener('focus', function() {
-            setTimeout(checkVisibility, 100);
-        });
+            function checkVisibility() {
+                if (document.hidden || !document.hasFocus()) {
+                    sendVisibilityState(true);
+                } else {
+                    sendVisibilityState(false);
+                }
+            }
 
-        setInterval(checkVisibility, 2000);
-    </script>
+            document.addEventListener('visibilitychange', checkVisibility);
+            window.addEventListener('blur', function() {
+                setTimeout(checkVisibility, 100);
+            });
+            window.addEventListener('focus', function() {
+                setTimeout(checkVisibility, 100);
+            });
 
-{% endblock %}
+            setInterval(checkVisibility, 2000);
+        </script>
+
+    {% endblock %}

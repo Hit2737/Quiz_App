@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
-{% block title %}Admin Approval Number{% endblock %}
-{% block content %}
-    <div class="container">
-        <h1>Admin's Approval Number</h1>
-        <p>Select an approval number to continue.</p>
-        <form method="post" action="{{url_for('approve.appr_num',quiz_id=quiz_id)}}" style="display: flex; flex-direction: row;">
-            {% for num in nums %}
-                <input type="submit" class="button" name="appr_num" value="{{num}}" id="appr_num">
-            {% endfor %}
-        </form>
-    </div>
-{% endblock %}
+    {% block title %}Admin Approval Number{% endblock %}
+    {% block content %}
+        <div class="container">
+            <h1>Admin's Approval Number</h1>
+            <p>Select an approval number to continue.</p>
+            <form method="post" action="{{url_for('approve.appr_num',quiz_id=quiz_id)}}" style="display: flex; flex-direction: row;">
+                {% for num in nums %}
+                    <input type="submit" class="button" name="appr_num" value="{{num}}" id="appr_num">
+                {% endfor %}
+            </form>
+        </div>
+    {% endblock %}

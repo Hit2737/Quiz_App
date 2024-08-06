@@ -175,7 +175,7 @@
 	margin-block-end: var(--bk-block-spacing-s);
     }
 
-    input:is([type="text"], [type="email"], [type="search"], [type="date"], [type="time"]),
+    input:is([type="text"], [type="email"], [type="search"], [type="date"], [type="time"], [type="password"]),
     select {
 	font: inherit;
 	padding: var(--bk-padding-xs);
@@ -493,6 +493,13 @@
 	    background-color: var(--bk-active-bg);
 	    color: var(--bk-active-text);
 	}
+	a[type="button"]{
+		padding: var(--bk-padding-xs);
+		text-decoration: none;
+		display: inline-block;
+		width: max-content;
+		margin: var(--bk-padding-xs);
+	}
 
 	mark::selection {
 	    background-color: var(--bk-bg);
@@ -526,7 +533,7 @@
 	    border-bottom: var(--border-sub);
 	}
 
-	input:is([type="text"], [type="email"], [type="search"], [type="date"], [type="time"]),
+	input:is([type="text"], [type="email"], [type="search"], [type="date"], [type="time"], [type="password"]),
 	select {
 	    border: var(--bk-border-s);
 	}
@@ -562,6 +569,7 @@
 
 	input[type="submit"],
 	input[type="file"]::file-selector-button,
+	a[type="button"],
 	button {
 	    color: var(--bk-primary-text);
 	    background-color: var(--bk-primary);
@@ -577,6 +585,7 @@
 	}
 
 	input[type="submit"]:active,
+	a[type="button"]:active,
 	button:active,
 	input[type="reset"]:active,
 	input[type="file"]:active::file-selector-button {
@@ -595,6 +604,7 @@
 	    [type="submit"]
 	):focus,
 	select:focus,
+	a[type="button"]:focus,
 	button:focus,
 	input[type="file"]:focus::file-selector-button {
 	    outline: var(--bk-border-l);
@@ -609,6 +619,7 @@
 	}
 
 	textarea:focus {
+
 	    outline: var(--bk-border-l);
 	}
     }
