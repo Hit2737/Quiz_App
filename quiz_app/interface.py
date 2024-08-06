@@ -101,7 +101,7 @@ def ques_locked(success = ""):
 @login_required
 @approval_required
 def thankyou(suceess = False):
-    return render_template('thankyou.html', quiz_id = session['quiz_id'], suceess = session['success'])
+    return render_template('thankyou.html', quiz_id = session['quiz_id'], successfull = session['success'])
     
     
     
