@@ -24,20 +24,20 @@
                     <input type="text" name="question" value="{{question['question_text']}}" required>
                     <div class="time-limit">
                         <label for="time-limit">Time Limit:</label>
-                        <div class="duration" style="display: flex;flex-direction: row; height: fit-content; align-items: start;">
+                        <div class="duration">
                             {% if question['duration'] != None %}   
-                                <input type="number" name="hours-1" min="0" max="5" style="width: max-content; font-size: x-large;"  value="{{question['duration'].split(':')[0]}}">
+                                <input type="number" name="hours-1" min="0" max="5" value="{{question['duration'].split(':')[0]}}">
                                 <label for="hours">hr.</label>
-                                <input type="number" name="minutes-1" min="0" max="59" style="width: max-content; font-size: x-large;" value="{{question['duration'].split(':')[1]}}">
+                                <input type="number" name="minutes-1" min="0" max="59" value="{{question['duration'].split(':')[1]}}">
                                 <label for="minutes">min.</label>
-                                <input type="number" name="seconds-1" min="0" max="59" style="width: max-content; font-size: x-large;"  value="{{question['duration'].split(':')[2].split('.')[0]}}">
+                                <input type="number" name="seconds-1" min="0" max="59" value="{{question['duration'].split(':')[2].split('.')[0]}}">
                                 <label for="seconds">sec.</label>
                             {% else %}
-                                <input type="number" name="hours-1" min="0" max="5" style="width: max-content; font-size: x-large;">
+                                <input type="number" name="hours-1" min="0" max="5">
                                 <label for="hours">hr.</label>
-                                <input type="number" name="minutes-1" min="0" max="59" style="width: max-content; font-size: x-large;">
+                                <input type="number" name="minutes-1" min="0" max="59">
                                 <label for="minutes">min.</label>
-                                <input type="number" name="seconds-1" min="0" max="59" style="width: max-content; font-size: x-large;">
+                                <input type="number" name="seconds-1" min="0" max="59">
                                 <label for="seconds">sec.</label>
                             {% endif %}
                         </div>
@@ -145,12 +145,12 @@
                         <input type="text" name="question" required>
                         <div class="time-limit">
                             <label for="time-limit">Time Limit:</label>
-                            <div class="duration" style="display: flex;flex-direction: row; height: fit-content; align-items: start;">
-                                <input type="number" name="hours-${questionCount}" min="0" max="5" style="width: max-content; font-size: x-large;">
+                            <div class="duration" style="display:flex">
+                                <input type="number" name="hours-${questionCount}" min="0" max="5" style="width: max-content;">
                                 <label for="hours">hr.</label>
-                                <input type="number" name="minutes-${questionCount}" min="0" max="59" style="width: max-content; font-size: x-large;">
+                                <input type="number" name="minutes-${questionCount}" min="0" max="59" style="width: max-content;">
                                 <label for="minutes">min.</label>
-                                <input type="number" name="seconds-${questionCount}" min="0" max="59" style="width: max-content; font-size: x-large;">
+                                <input type="number" name="seconds-${questionCount}" min="0" max="59" style="width: max-content;">
                                 <label for="seconds">sec.</label>
                             </div>
                             <p>If you want to go for Manual Lock Unlock Feature, then leave the time blocks unfilled.</p>
