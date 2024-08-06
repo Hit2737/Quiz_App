@@ -1,11 +1,16 @@
 {% extends 'base.html' %}
 
-    {% block title %}Question Locked{% endblock %}
+{% block title %}Question Locked{% endblock %}
 
-    {% block content %}
-    <div class="container mt-5">
-        <h2>Question Locked</h2>
-        <p>This question is locked. Wait for the admin to unlock the question</p>
-        <a href="{{ url_for('interface.quiz_interface') }}" class="btn btn-primary">Refresh</a>
-    </div>
-    {% endblock %}
+{% block content %}
+<div class="container mt-5">
+    {% if successfull %}
+    <h3>Your previous question was submitted Successfully!</h3>
+    {% else %}
+    <h3>Your previous question was not submitted Successfully!</h3>
+    {% endif %}
+    <h2>Waiting for admin to unlock the next question...</h2>
+    <p>Press Next Question button to check whether the next question is open or not.</p>
+    <a href="{{ url_for('interface.quiz_interface', successfull=successfull) }}" class="btn btn-primary">Next Question</a>
+</div>
+{% endblock %}

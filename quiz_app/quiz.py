@@ -138,6 +138,11 @@ def user_response():
     quiz = db.execute('SELECT * FROM Quizzes WHERE quiz_id = ?', (session['quiz_id'],)).fetchone()
     question = db.execute('SELECT * FROM Questions WHERE quiz_id = ? AND question_id = ?', (quiz['quiz_id'], session['current_question'])).fetchone()
     if request.method == 'POST':
+        locked = db.execute(
+            'SELECT lock FROM Questions WHERE quiz_id = ? AND question_id = ?', (quiz['quiz_id'], session['current_question'])
+        ).fetchone()
+        if (locked):
+            return redirect(url_for('interface.quiz_interface', success = False))
         responses = request.form.getlist('response-' + str(session['current_question']))
         responses = ','.join(responses)
         db.execute(
@@ -151,14 +156,14 @@ def user_response():
             if question['duration'] != None:
                 db.execute('UPDATE Questions SET lock = 1 WHERE quiz_id = ? AND question_id = ?', (quiz['quiz_id'], int(session['current_question']) - 1))
                 db.commit()        
-            return redirect(url_for('interface.quiz_interface'))
+            return redirect(url_for('interface.quiz_interface', success = True))
         elif 'submit' in request.form:
             if question['duration'] != None:
                 db.execute('UPDATE Questions SET lock = 1 WHERE quiz_id = ? AND question_id = ?', (quiz['quiz_id'], int(session['current_question'])))
                 db.commit()
             return redirect(url_for('interface.thankyou'))
 
-    return redirect(url_for('interface.quiz_interface'))
+    return redirect(url_for('interface.quiz_interface', success = True))
 
 
 
