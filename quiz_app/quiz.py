@@ -140,30 +140,32 @@ def user_response():
     if request.method == 'POST':
         locked = db.execute(
             'SELECT lock FROM Questions WHERE quiz_id = ? AND question_id = ?', (quiz['quiz_id'], session['current_question'])
-        ).fetchone()
-        if (locked):
-            return redirect(url_for('interface.quiz_interface', success = False))
+        ).fetchone()['lock']
+
         responses = request.form.getlist('response-' + str(session['current_question']))
         responses = ','.join(responses)
-        db.execute(
-            'INSERT INTO UserResponses (user_id, quiz_id, question_id, selected_options)'
-            ' VALUES (?, ?, ?, ?)',
-            (g.user['id'], quiz['quiz_id'], session['current_question'], responses)
-        )
-        db.commit()
+        if (not locked):
+            db.execute(
+                'INSERT INTO UserResponses (user_id, quiz_id, question_id, selected_options)'
+                ' VALUES (?, ?, ?, ?)',
+                (g.user['id'], quiz['quiz_id'], session['current_question'], responses)
+            )
+            db.commit()
+
         if 'next' in request.form:
             session['current_question'] = int(session['current_question']) + 1
             if question['duration'] != None:
                 db.execute('UPDATE Questions SET lock = 1 WHERE quiz_id = ? AND question_id = ?', (quiz['quiz_id'], int(session['current_question']) - 1))
-                db.commit()        
-            return redirect(url_for('interface.quiz_interface', success = True))
+                db.commit()
+            return redirect(url_for('interface.quiz_interface', success = not locked))
         elif 'submit' in request.form:
             if question['duration'] != None:
                 db.execute('UPDATE Questions SET lock = 1 WHERE quiz_id = ? AND question_id = ?', (quiz['quiz_id'], int(session['current_question'])))
                 db.commit()
-            return redirect(url_for('interface.thankyou'))
 
-    return redirect(url_for('interface.quiz_interface', success = True))
+            return redirect(url_for('interface.thankyou', success = not locked))
+
+    return redirect(url_for('interface.quiz_interface', success = "galat"))
 
 
 

@@ -99,8 +99,8 @@ def ques_locked():
 @bp.route('/thankyou')
 @login_required
 @approval_required
-def thankyou():
-    return render_template('thankyou.html', quiz_id = session['quiz_id'])
+def thankyou(suceess = False):
+    return render_template('thankyou.html', quiz_id = session['quiz_id'], suceess = suceess)
     
     
     
