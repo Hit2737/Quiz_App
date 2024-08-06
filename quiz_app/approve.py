@@ -34,14 +34,14 @@ def check_appr_num(quiz_id,nums=nums):
         return redirect(url_for('interface.dashboard'))
     elif user != None and user['approval_status'] == 1:
         flash("You are already approved.")
-        return redirect(url_for('interface.quiz_interface',quiz_id=quiz_id))
+        return redirect(url_for('interface.quiz_interface', success=""))
     if request.method == 'POST':
         appr_num = db.execute('SELECT * FROM Quizzes WHERE quiz_id = ?', (quiz_id,)).fetchone()['appr_num']
         if appr_num == int(request.form['selected_num']):
             flash('You are approved.')
             db.execute('INSERT INTO Approvals (user_id, quiz_id, approval_status, time_stamp) VALUES (?,?,?,?)',(session['user_id'],quiz_id,1,db.execute('SELECT DATETIME("now", "localtime")').fetchone()[0]))
             db.commit()
-            return redirect(url_for('interface.quiz_interface',quiz_id=quiz_id))
+            return redirect(url_for('interface.quiz_interface', success=""))
         else:
             flash('You are not approved.')
             db.execute('INSERT INTO Approvals (user_id, quiz_id, approval_status, time_stamp) VALUES (?,?,?,?)',(session['user_id'],quiz_id,0,db.execute('SELECT DATETIME("now", "localtime")').fetchone()[0]))
