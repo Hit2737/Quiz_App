@@ -61,7 +61,7 @@ def information():
 @bp.route('/quiz_interface', methods=['GET', 'POST'])
 @login_required
 @approval_required
-def quiz_interface(success = False):      
+def quiz_interface(success = ""):      
     db = get_db()
     quiz = db.execute(
         'SELECT * FROM Quizzes WHERE quiz_id = ?', (session['quiz_id'],)

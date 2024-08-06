@@ -4,13 +4,11 @@
 
 {% block content %}
 <div class="container mt-5">
-    {% if successfull!="galat" %}
-    {% if successfull==Ture %}
-    <h3>Your previous question was submitted Successfully!</h3>
-    {% else %}
-    <h3>Unsuccessful Submission!!!  The question was locked before you submitted your answer!</h3>
-    {% endif %}
-    {% endif %}
+    <h3>{{successfull}}</h3>
+    <!-- <h3>Your previous question was submitted Successfully!</h3> -->
+<!-- 
+    <h3>Unsuccessful Submission!!!  The question was locked before you submitted your answer!</h3> -->
+
     <h2>Waiting for admin to unlock the next question...</h2>
     <p>Press Next Question button to check whether the next question is open or not.</p>
     <a href="{{ url_for('interface.quiz_interface', successfull=successfull) }}" class="btn btn-primary">Next Question</a>
