@@ -6,9 +6,6 @@ from quiz_app.auth import login_required, admin_login_required, approval_require
 import json
 bp = Blueprint('interface', __name__, url_prefix='/')
 
-
-
-
 @bp.route('/admin_dashboard', methods=('GET', 'POST'))
 @admin_login_required
 def admin_dashboard():
@@ -16,8 +13,6 @@ def admin_dashboard():
         'SELECT * FROM Quizzes WHERE admin_id = ?', (g.admin['admin_id'],)
     ).fetchall()
     return render_template('admin_dashboard.html', Quizzes=Quizzes)
-
-
 
 
 @bp.route('/dashboard', methods=('GET', 'POST'))
@@ -71,7 +66,7 @@ def quiz_interface():
     quiz = db.execute(
         'SELECT * FROM Quizzes WHERE quiz_id = ?', (session['quiz_id'],)
     ).fetchone()
-    
+
     # Finding the total number of questions
     ques_count = db.execute(
         'SELECT COUNT(*) FROM Questions WHERE quiz_id = ?', (quiz['quiz_id'],)
