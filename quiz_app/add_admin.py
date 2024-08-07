@@ -41,26 +41,8 @@ def del_admin():
         db.execute('DELETE FROM Admins WHERE email_id = ?', (email,))
         db.commit()
         print('Admin deleted successfully.')
-    
-def admin_login():
-    email = input('Enter your email: ')
-    password = input('Enter your password: ')
-    db = sqlite3.connect(
-        'instance/quiz_app.sqlite',
-        detect_types=sqlite3.PARSE_DECLTYPES
-    )
-    db.row_factory = sqlite3.Row
-    admin = db.execute('SELECT * FROM Admins WHERE email_id = ?', (email,)).fetchone()
-    if admin is None:
-        raise ValueError('Admin does not exist. Please check the email.')
-    if not check_password_hash(admin['password'], password):
-        raise ValueError('Incorrect password.')
-    print('Admin logged in successfully.')
-
 
 if __name__ == '__main__':
-    print('You have to login first with your admin credentials.')
-    admin_login()
     oper = input('Enter 1 to add admin, 2 to delete admin: ')
     if oper == '1':
         add_admin()
@@ -68,4 +50,3 @@ if __name__ == '__main__':
         del_admin()
     else:
         print('Invalid input. Please try again.')
-        
