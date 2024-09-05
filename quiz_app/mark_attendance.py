@@ -3,7 +3,7 @@ import sqlite3
 
 def allow_student():
     quiz_id = int(input('Enter the quiz id: '))
-    print('Enter the username of the users that is being displayed on the screen. Enter 1 to stop. And after every username press Enter.')
+    print('Enter the username of the users. Enter 1 to stop. And after every username press Enter.')
     users = []
     username = input()
     while(username!="1"):
