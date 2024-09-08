@@ -4,198 +4,122 @@
     <div class="container">
         <h1>Add Questions to your Quiz {{ quiz_id }}</h1>
         <form action="{{ url_for('quiz.add_questions', quiz_id = quiz_id) }}" method="POST" id="question-form">
-            {% for question in questions %}
-            <div class="ques_container">
-                <h2>Question: {{ question['question_id'] }}</h2>
+            <button type="button" id="add_ques" onclick="addQuestion()">Add Question</button>
+            <button type="submit">DONE</button>
+        </form>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function(){
+            handleQuestionTypeChange(document.querySelector('.ques_type'));
+        });
+
+        function handleQuestionTypeChange(selectElement){
+            const questionType = selectElement.value;
+            const questionContainer = selectElement.closest('.ques_container');
+            if (questionType === 'MCQ'){
+                questionContainer.querySelector('.options_container').style.display = 'block';
+                questionContainer.querySelector('.answer_text').style.display = 'none';
+            } else if (questionType === 'Text'){
+                questionContainer.querySelector('.answer_text').style.display = 'block';
+                questionContainer.querySelector('.options_container').style.display = 'none';
+            }
+        }
+
+        function addOption(button){
+            const optionsList = button.closest('.options_container').querySelector('#options-list');
+            const questionContainer = button.closest('.ques_container');
+            const questionNumber = Array.from(document.querySelectorAll('.ques_container')).indexOf(questionContainer) + 1;
+            const optionCount = optionsList.querySelectorAll('.option-container').length + 1;
+            const optionContainer = document.createElement('div');
+            optionContainer.className = 'option-container';
+            optionContainer.innerHTML = `
+                ${optionCount}.<input type="text" name="option-${questionNumber}" required>
+                <input type="checkbox" name="correct-${questionNumber}" value="${optionCount}">
+                <button type="button" onclick="removeOption(this)">Remove</button>`;
+            optionsList.appendChild(optionContainer);
+            updateOptionNumbers(optionsList, questionNumber);
+        }
+
+        function removeOption(button){
+            const optionContainer = button.parentNode;
+            const optionsList = optionContainer.parentNode;
+            optionContainer.parentNode.removeChild(optionContainer);
+            const questionContainer = button.closest('.ques_container');
+            const questionNumber = Array.from(document.querySelectorAll('.ques_container')).indexOf(questionContainer) + 1;
+            updateOptionNumbers(optionsList, questionNumber);
+        }
+        function addQuestion(){
+            const questionForm = document.getElementById('question-form');
+            const newQuestionContainer = document.createElement('div');
+            newQuestionContainer.className = 'ques_container';
+            const questionCount = document.querySelectorAll('.ques_container').length + 1;
+            newQuestionContainer.id = `ques-${questionCount}`;
+            newQuestionContainer.innerHTML = `
+                <h2>Question: ${questionCount}</h2>
                 <div class="question_type">
                     <label for="ques_type">Question Type:</label>
                     <select name="ques_type" class="ques_type" required onchange="handleQuestionTypeChange(this)">
-                        {% if question["question_type"] == 'MCQ' %}
-                        <option value="MCQ" selected>MCQ</option>
-                        <option value="Text">Text</option>
-                        {% else %}
                         <option value="MCQ">MCQ</option>
-                        <option value="Text" selected>Text</option>
-                        {% endif %}
+                        <option value="Text">Text</option>
                     </select>
                 </div>
-                <div class="question" id="question">
+                <div class="question">
                     <label for="question">Question:</label>
-                    <input type="text" name="question" value="{{question['question_text']}}" required>
+                    <input class="mathInput" type="text" name="question" required>
+                    <div class="mathOutput"></div>
                     <div class="time-limit">
                         <label for="time-limit">Time Limit:</label>
-                        <div class="duration">
-                            {% if question['duration'] != None %}   
-                                <input type="number" name="hours-1" min="0" max="5" value="{{question['duration'].split(':')[0]}}">
-                                <label for="hours">hr.</label>
-                                <input type="number" name="minutes-1" min="0" max="59" value="{{question['duration'].split(':')[1]}}">
-                                <label for="minutes">min.</label>
-                                <input type="number" name="seconds-1" min="0" max="59" value="{{question['duration'].split(':')[2].split('.')[0]}}">
-                                <label for="seconds">sec.</label>
-                            {% else %}
-                                <input type="number" name="hours-1" min="0" max="5">
-                                <label for="hours">hr.</label>
-                                <input type="number" name="minutes-1" min="0" max="59">
-                                <label for="minutes">min.</label>
-                                <input type="number" name="seconds-1" min="0" max="59">
-                                <label for="seconds">sec.</label>
-                            {% endif %}
+                        <div class="duration" style="display:flex">
+                            <input type="number" name="hours-${questionCount}" min="0" max="5" style="width: max-content;">
+                            <label for="hours">hr.</label>
+                            <input type="number" name="minutes-${questionCount}" min="0" max="59" style="width: max-content;">
+                            <label for="minutes">min.</label>
+                            <input type="number" name="seconds-${questionCount}" min="0" max="59" style="width: max-content;">
+                            <label for="seconds">sec.</label>
                         </div>
                         <p>If you want to go for Manual Lock Unlock Feature, then leave the time blocks unfilled.</p>
                     </div>
-                    {% if question["question_type"] == 'MCQ' %}
-                        <div class="options_container" id="options_container">
-                            <label for="options">Options:</label>
-                            <div id="options-list">
-                            {% for option in question['options'] %}
-                                <div class="option-container">
-                                    {{loop.index}}<input type="text" name="option-{{question['question_id']}}" value="{{option['option_text']}}" required>
-                                    {% if option['correct']==1 %}
-                                        <input type="checkbox" name="correct-{{question['question_id']}}" checked value="{{loop.index}}">
-                                    {% else %}
-                                        <input type="checkbox" name="correct-{{question['question_id']}}" value="{{loop.index}}">
-                                    {% endif %}
-                                    <button type="button" onclick="removeOption(this)">Remove</button> 
-                                </div>  
-                            {% endfor %}
-                            </div>
-                            <button type="button" onclick="addOption(this)">Add Option</button>
-                        </div>
-                        <div class="answer_text" id="answer_text" style="display: none;">
-                            <label for="answer"></label>
-                            <input type="text" name="answer" value="Answer" required>
-                        </div>
-                    {% else %}
-                    <div class="options_container" id="options_container" style="display: none;">
+                    <div class="options_container" id="options_container">
                         <label for="options">Options:</label>
                         <div id="options-list">
                         </div>
                         <button type="button" onclick="addOption(this)">Add Option</button>
                     </div>
                     <div class="answer_text" id="answer_text">
-                        <label for="answer"></label>
-                        <input type="text" name="answer" value="{{question['options'][0]['option_text']}}" required>
+                        <label for="answer">Answer:</label>
+                        <input class="mathInput" type="text" name="answer" value="Answer" required>
+                        <p class="mathOutput"></p>
                     </div>
-                    {% endif %}
                 </div>
-                <button type="button" class="del-btn" onclick="deleteQuestion(this)">Delete Question</button>
-            </div>
-            {% endfor %}
-            <button type="button" id="add_ques" onclick="addQuestion()">Add Question</button>
-            <button type="submit">DONE</button>
-        </form>
-        <script>
-            document.addEventListener('DOMContentLoaded', function(){
-                handleQuestionTypeChange(document.querySelector('.ques_type'));
+                <button type="button" onclick="deleteQuestion(this)">Delete Question</button>`;
+            questionForm.insertBefore(newQuestionContainer, document.getElementById('add_ques'));
+            handleQuestionTypeChange(newQuestionContainer.querySelector('.ques_type'));
+        }
+
+        function deleteQuestion(button){
+            const questionContainer = button.closest('.ques_container');
+            questionContainer.parentNode.removeChild(questionContainer);
+            updateQuestionNumbers();
+        }
+
+        function updateQuestionNumbers() {
+            const questionContainers = document.querySelectorAll('.ques_container');
+            questionContainers.forEach((container, index) => {
+                const questionNumber = index + 1;
+                container.id = `ques-${questionNumber}`;
+                container.querySelector('h2').textContent = `Question: ${questionNumber}`;
+                updateOptionNumbers(container.querySelector('#options-list'), questionNumber);
             });
+        }
 
-            function handleQuestionTypeChange(selectElement){
-                const questionType = selectElement.value;
-                const questionContainer = selectElement.closest('.ques_container');
-                if (questionType === 'MCQ'){
-                    questionContainer.querySelector('.options_container').style.display = 'block';
-                    questionContainer.querySelector('.answer_text').style.display = 'none';
-                } else if (questionType === 'Text'){
-                    questionContainer.querySelector('.answer_text').style.display = 'block';
-                    questionContainer.querySelector('.options_container').style.display = 'none';
-                }
-            }
-
-            function addOption(button){
-                const optionsList = button.closest('.options_container').querySelector('#options-list');
-                const questionContainer = button.closest('.ques_container');
-                const questionNumber = Array.from(document.querySelectorAll('.ques_container')).indexOf(questionContainer) + 1;
-                const optionCount = optionsList.querySelectorAll('.option-container').length + 1;
-                const optionContainer = document.createElement('div');
-                optionContainer.className = 'option-container';
-                optionContainer.innerHTML = `
-                    ${optionCount}.<input type="text" name="option-${questionNumber}" required>
-                    <input type="checkbox" name="correct-${questionNumber}" value="${optionCount}">
-                    <button type="button" onclick="removeOption(this)">Remove</button>`;
-                optionsList.appendChild(optionContainer);
-                updateOptionNumbers(optionsList, questionNumber);
-            }
-
-            function removeOption(button){
-                const optionContainer = button.parentNode;
-                const optionsList = optionContainer.parentNode;
-                optionContainer.parentNode.removeChild(optionContainer);
-                const questionContainer = button.closest('.ques_container');
-                const questionNumber = Array.from(document.querySelectorAll('.ques_container')).indexOf(questionContainer) + 1;
-                updateOptionNumbers(optionsList, questionNumber);
-            }
-
-            function addQuestion(){
-                const questionForm = document.getElementById('question-form');
-                const newQuestionContainer = document.createElement('div');
-                newQuestionContainer.className = 'ques_container';
-                const questionCount = document.querySelectorAll('.ques_container').length + 1;
-                newQuestionContainer.id = `ques-${questionCount}`;
-                newQuestionContainer.innerHTML = `
-                    <h2>Question: ${questionCount}</h2>
-                    <div class="question_type">
-                        <label for="ques_type">Question Type:</label>
-                        <select name="ques_type" class="ques_type" required onchange="handleQuestionTypeChange(this)">
-                            <option value="MCQ">MCQ</option>
-                            <option value="Text">Text</option>
-                        </select>
-                    </div>
-                    <div class="question">
-                        <label for="question">Question:</label>
-                        <input type="text" name="question" required>
-                        <div class="time-limit">
-                            <label for="time-limit">Time Limit:</label>
-                            <div class="duration" style="display:flex">
-                                <input type="number" name="hours-${questionCount}" min="0" max="5" style="width: max-content;">
-                                <label for="hours">hr.</label>
-                                <input type="number" name="minutes-${questionCount}" min="0" max="59" style="width: max-content;">
-                                <label for="minutes">min.</label>
-                                <input type="number" name="seconds-${questionCount}" min="0" max="59" style="width: max-content;">
-                                <label for="seconds">sec.</label>
-                            </div>
-                            <p>If you want to go for Manual Lock Unlock Feature, then leave the time blocks unfilled.</p>
-                        </div>
-                        <div class="options_container" id="options_container">
-                            <label for="options">Options:</label>
-                            <div id="options-list">
-                            </div>
-                            <button type="button" onclick="addOption(this)">Add Option</button>
-                        </div>
-                        <div class="answer_text" id="answer_text">
-                            <label for="answer">Answer:</label>
-                            <input type="text" name="answer" value="Answer" required>
-                        </div>
-                    </div>
-                    <button type="button" onclick="deleteQuestion(this)">Delete Question</button>`;
-                questionForm.insertBefore(newQuestionContainer, document.getElementById('add_ques'));
-                handleQuestionTypeChange(newQuestionContainer.querySelector('.ques_type'));
-            }
-
-            function deleteQuestion(button){
-                const questionContainer = button.closest('.ques_container');
-                questionContainer.parentNode.removeChild(questionContainer);
-                updateQuestionNumbers();
-            }
-
-            function updateQuestionNumbers() {
-                const questionContainers = document.querySelectorAll('.ques_container');
-                questionContainers.forEach((container, index) => {
-                    const questionNumber = index + 1;
-                    container.id = `ques-${questionNumber}`;
-                    container.querySelector('h2').textContent = `Question: ${questionNumber}`;
-                    updateOptionNumbers(container.querySelector('#options-list'), questionNumber);
-                });
-            }
-
-            function updateOptionNumbers(optionsList, questionNumber) {
-                const optionContainers = optionsList.querySelectorAll('.option-container');
-                optionContainers.forEach((container, index) => {
-                    const optionNumber = index + 1;
-                    container.querySelector('input[type="text"]').name = `option-${questionNumber}`;
-                    container.querySelector('input[type="checkbox"]').name = `correct-${questionNumber}`;
-                    container.childNodes[0].textContent = `${optionNumber}`;
-                });
-            }
-        </script>
-    </div>
+        function updateOptionNumbers(optionsList, questionNumber) {
+            const optionContainers = optionsList.querySelectorAll('.option-container');
+            optionContainers.forEach((container, index) => {
+                const optionNumber = index + 1;
+                container.querySelector('input[type="text"]').name = `option-${questionNumber}`;
+                container.querySelector('input[type="checkbox"]').name = `correct-${questionNumber}`;
+                container.childNodes[0].textContent = `${optionNumber}`;
+            });
+        }
+    </script>
     {% endblock %}

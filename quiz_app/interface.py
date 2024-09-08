@@ -108,18 +108,16 @@ def thankyou(suceess = False):
 
 @bp.route('/report', methods=['GET','POST'])
 @login_required
-def report(quiz_id = None):
+def report():
     db = get_db()
-    if quiz_id is None:
-        if request.method == 'POST':
-            quiz_id = request.form['quiz_code']
-            session['quiz_id'] = quiz_id
-        else:
-            flash("Invalid Request")
-            return redirect(url_for('interface.dashboard'))
+    if request.method == 'POST':
+        quiz_id = request.form['quiz_code']
+        session['quiz_id'] = quiz_id
+    else:
+        quiz_id = session['quiz_id']
     quiz = db.execute('SELECT * FROM Quizzes WHERE quiz_id = ?', (quiz_id,)).fetchone()
     
-    if(quiz is None):
+    if(quiz == None):
         flash("Quiz not found")
         return redirect(url_for('interface.dashboard'))
     
