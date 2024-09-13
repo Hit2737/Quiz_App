@@ -35,7 +35,7 @@ Now, you can see the web address where the app is running. You can open the web 
 
 After login as admin you will see an interface like below.
 
-![Admin Interface](images_for_readme/admin_interface.png)
+![Admin Interface](images_for_readme/admin_dashboard.png)
 
 You can create a quiz by clicking on the "Create Quiz" button. Now, you have to select an id and title for the quiz(quiz id should be unique but you can put same quiz name multiple times). Now, after creating the quiz you can add questions, options and can mark answers on the interface. 
 
@@ -43,7 +43,7 @@ Here, if you want to add a new question then you can click on the "Add Question"
 
 After adding all questions and answers the interface will look like below:
 
-![Admin Interface](images_for_readme/create_quiz.png)
+![Admin Interface](images_for_readme/create_quiz_1.png)
 
 ![Admin Interface](images_for_readme/create_quiz_2.png)
 
