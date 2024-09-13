@@ -7,7 +7,7 @@
       <label for="email_id">Email ID</label>
       <input type="email" name="email_id" id="email_id" required>
       <label for="password">Password</label>
-      <input type="password" name="password" id="password" required minlength="2">
+      <input type="password" name="password" id="password" required minlength="8">
       <input type="submit" value="Register">
     </form>
     <p>Already have an account? <a type="button" href="{{ url_for('auth.login_student') }}">Log In as Student</a></p>
