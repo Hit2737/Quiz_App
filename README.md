@@ -1,6 +1,6 @@
 # Quiz App
 
-This repo provides the code for the quiz app that I with my friends ([Hitesh Kumar](https://github.com/hit2737/), [Bhavik Patel](https://github.com/bp0609/), [Gaurav Budhwani](https://github.com/gaurav-budhwani)) under the guidance of [Prof. Balagopal Komarath](https://github.com/balu).
+This repo provides the code for the quiz app that I with my friends ([Ruchit Jagodara](https://github.com/ruchitjagodara), [Bhavik Patel](https://github.com/bp0609/), [Gaurav Budhwani](https://github.com/gaurav-budhwani)) under the guidance of [Prof. Balagopal Komarath](https://github.com/balu).
 
 ## Features
 
